@@ -8,7 +8,6 @@
             "email": "frank.naegler@typo3.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": "^7.2.5",
         "ext-json": "*",
