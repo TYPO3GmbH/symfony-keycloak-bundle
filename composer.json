@@ -1,0 +1,26 @@
+{
+    "name": "t3g/keycloak-bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Frank Naegler",
+            "email": "frank.naegler@typo3.org"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.2.5",
+        "ext-json": "*",
+        "nyholm/psr7": "^1.2",
+        "php-http/cache-plugin": "^1.7",
+        "php-http/httplug-bundle": "^1.17",
+        "web-token/jwt-bundle": "^2.1",
+        "web-token/jwt-checker": "^2.1",
+        "web-token/jwt-core": "^2.1",
+        "web-token/jwt-key-mgmt": "^2.1",
+        "web-token/jwt-signature": "^2.1",
+        "web-token/jwt-signature-algorithm-hmac": "^2.1",
+        "web-token/jwt-signature-algorithm-rsa": "^2.1"
+    }
+}
