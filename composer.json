@@ -21,5 +21,10 @@
         "web-token/jwt-signature": "^2.1",
         "web-token/jwt-signature-algorithm-hmac": "^2.1",
         "web-token/jwt-signature-algorithm-rsa": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "T3G\\Bundle\\Keycload\\": ""
+        }
     }
 }
