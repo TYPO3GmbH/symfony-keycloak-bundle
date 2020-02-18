@@ -12,6 +12,7 @@
             <argument type="service" id="jose.jws_verifier.login_typo3_com" />
             <argument type="service" id="jose.key_set.login_typo3_com" />
         </service>
+        <service id="T3G\Bundle\Keycload\Service\JWTService" alias="t3g_keycloak.jwtservice" />
 
     </services>
 </container>
