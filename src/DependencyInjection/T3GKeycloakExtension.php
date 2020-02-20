@@ -11,7 +11,7 @@ namespace T3G\Bundle\Keycloak\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class T3GKeycloakExtension extends Extension
 {
@@ -22,17 +22,11 @@ class T3GKeycloakExtension extends Extension
 
     public function load(array $configs, ContainerBuilder $container)
     {
-        $loader = new XmlFileLoader(
+        $loader = new YamlFileLoader(
             $container,
             new FileLocator(__DIR__ . '/../Resources/config')
         );
-        $loader->load('services.xml');
-
-        $container->setParameter('t3g_keycloak.keycloak.auth_server_url', 'https://login.typo3.com/auth');
-        $container->setParameter('t3g_keycloak.keycloak.jku_url', 'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs');
-        $container->setParameter('t3g_keycloak.keycloak.redirect_route', '');
-        $container->setParameter('t3g_keycloak.oauth.client_id', '');
-        $container->setParameter('t3g_keycloak.oauth.client_secret', '');
+        $loader->load('services.yaml');
 
         $container->prependExtensionConfig('knpu_oauth2_client', [
             'clients' => [
