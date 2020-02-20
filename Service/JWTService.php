@@ -1,6 +1,6 @@
 <?php
 
-namespace T3G\Bundle\Keycload\Service;
+namespace T3G\Bundle\Keycloak\Service;
 
 use App\Exception\NoTokenException;
 use Jose\Bundle\JoseFramework\Services\JWSVerifier;

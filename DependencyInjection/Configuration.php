@@ -1,6 +1,6 @@
 <?php
 
-namespace T3G\Bundle\Keycload\DependencyInjection;
+namespace T3G\Bundle\Keycloak\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

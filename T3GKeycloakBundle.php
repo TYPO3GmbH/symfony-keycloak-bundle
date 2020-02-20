@@ -1,10 +1,10 @@
 <?php
 
 
-namespace T3G\Bundle\Keycload;
+namespace T3G\Bundle\Keycloak;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use T3G\Bundle\Keycload\DependencyInjection\T3GKeycloakExtension;
+use T3G\Bundle\Keycloak\DependencyInjection\T3GKeycloakExtension;
 
 final class T3GKeycloakBundle extends Bundle
 {

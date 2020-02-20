@@ -36,6 +36,6 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    T3G\Bundle\Keycload\KeycloadBundle::class => ['all' => true],
+    T3G\Bundle\Keycloak\KeycloakBundle::class => ['all' => true],
 ];
 ```
