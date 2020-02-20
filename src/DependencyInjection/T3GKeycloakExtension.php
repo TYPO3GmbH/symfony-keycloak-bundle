@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of the package t3g/symfony-keycloak-bundle.
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace T3G\Bundle\Keycloak\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -18,7 +24,7 @@ class T3GKeycloakExtension extends Extension
     {
         $loader = new XmlFileLoader(
             $container,
-            new FileLocator(__DIR__.'/../Resources/config')
+            new FileLocator(__DIR__ . '/../Resources/config')
         );
         $loader->load('services.xml');
 
@@ -91,4 +97,5 @@ class T3GKeycloakExtension extends Extension
                 'request_factory' => 'httplug.message_factory'
             ]
         ]);
-    }}
+    }
+}

@@ -3,12 +3,18 @@
     "type": "symfony-bundle",
     "description": "Use the TYPO3 Keycloak server for authentication",
     "license": "MIT",
+    "homepage": "http://www.typo3.com",
     "authors": [
         {
             "name": "Frank Naegler",
             "email": "frank.naegler@typo3.com"
+        },
+        {
+            "name": "Jurian Janssen",
+            "email": "jurian.janssen@typo3.com"
         }
     ],
+    "minimum-stability": "stable",
     "require": {
         "php": "^7.2.5",
         "ext-json": "*",
@@ -27,7 +33,16 @@
     },
     "autoload": {
         "psr-4": {
-            "T3G\\Bundle\\Keycloak\\": ""
+            "T3G\\Bundle\\Keycloak\\": "src/"
         }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "roave/security-advisories": "dev-master"
+    },
+    "scripts": {
+        "cgl": [
+            "vendor/bin/php-cs-fixer fix --config .php_cs.dist"
+        ]
     }
 }
