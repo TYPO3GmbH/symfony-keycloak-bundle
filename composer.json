@@ -1,6 +1,7 @@
 {
     "name": "t3g/keycloak-bundle",
     "type": "symfony-bundle",
+    "description": "Use the TYPO3 Keycloak server for authentication",
     "license": "MIT",
     "authors": [
         {
@@ -11,8 +12,10 @@
     "require": {
         "php": "^7.2.5",
         "ext-json": "*",
+        "ext-gmp": "*",
         "nyholm/psr7": "^1.2",
         "php-http/cache-plugin": "^1.7",
+        "php-http/curl-client": "^2.1",
         "php-http/httplug-bundle": "^1.17",
         "web-token/jwt-bundle": "^2.1",
         "web-token/jwt-checker": "^2.1",
