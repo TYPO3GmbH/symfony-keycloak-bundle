@@ -32,7 +32,7 @@ Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
 
 ```console
-$ composer require t3g/keycloak-bundle
+$ composer require t3g/symfony-keycloak-bundle
 ```
 
 ### Step 3: Add the firewall to security.yaml
