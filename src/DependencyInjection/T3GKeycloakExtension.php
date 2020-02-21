@@ -25,18 +25,18 @@ class T3GKeycloakExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('t3g_keycloak.keycloak.redirect_route', $config['keycloak']['redirect_route']);
-        $container->setParameter('t3g_keycloak.keycloak.auth_server_url', $config['keycloak']['auth_server_url']);
-        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url']);
+        $container->setParameter('t3g_keycloak.keycloak.redirect_route', $config['keycloak']['redirect_route'] ?? '');
+        $container->setParameter('t3g_keycloak.keycloak.auth_server_url', $config['keycloak']['auth_server_url'] ?? '');
+        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url'] ?? '');
         $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
-        $container->setParameter('t3g_keycloak.keycloak.oauth.client_id', $config['keycloak']['oauth']['client_id']);
-        $container->setParameter('t3g_keycloak.keycloak.oauth.client_secret', $config['keycloak']['oauth']['client_secret']);
+        $container->setParameter('t3g_keycloak.keycloak.oauth.client_id', $config['keycloak']['oauth']['client_id'] ?? '');
+        $container->setParameter('t3g_keycloak.keycloak.oauth.client_secret', $config['keycloak']['oauth']['client_secret'] ?? '');
 
         $container->prependExtensionConfig(
-                'knpu_oauth2_client',
-                [
+            'knpu_oauth2_client',
+            [
                     'clients' => [
                         'keycloak' => [
                             'type' => 'keycloak',
@@ -49,11 +49,11 @@ class T3GKeycloakExtension extends Extension
                         ],
                     ]
                 ]
-            );
+        );
 
         $container->prependExtensionConfig(
-                'httplug',
-                [
+            'httplug',
+            [
                     'plugins' => [
                         'cache' => [
                             'cache_pool' => 'cache.app',
@@ -83,11 +83,11 @@ class T3GKeycloakExtension extends Extension
                         'stream_factory' => 'Nyholm\Psr7\Factory\Psr17Factory',
                     ]
                 ]
-            );
+        );
 
         $container->prependExtensionConfig(
-                'jose',
-                [
+            'jose',
+            [
                     'key_sets' => [
                         'login_typo3_com' => [
                             'jku' => [
@@ -110,7 +110,7 @@ class T3GKeycloakExtension extends Extension
                         'request_factory' => 'httplug.message_factory'
                     ]
                 ]
-            );
+        );
 
         $loader = new YamlFileLoader(
             $container,
