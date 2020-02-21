@@ -1,5 +1,5 @@
 {
-    "name": "t3g/keycloak-bundle",
+    "name": "t3g/symfony-keycloak-bundle",
     "type": "symfony-bundle",
     "description": "Use the TYPO3 Keycloak server for authentication",
     "license": "MIT",
