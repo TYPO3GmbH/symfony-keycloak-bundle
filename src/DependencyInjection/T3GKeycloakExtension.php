@@ -34,8 +34,7 @@ class T3GKeycloakExtension extends Extension
         $container->setParameter('t3g_keycloak.keycloak.oauth.client_id', $config['keycloak']['oauth']['client_id']);
         $container->setParameter('t3g_keycloak.keycloak.oauth.client_secret', $config['keycloak']['oauth']['client_secret']);
 
-        if ($container->hasExtension('knpu_oauth2_client')) {
-            $container->prependExtensionConfig(
+        $container->prependExtensionConfig(
                 'knpu_oauth2_client',
                 [
                     'clients' => [
@@ -51,10 +50,8 @@ class T3GKeycloakExtension extends Extension
                     ]
                 ]
             );
-        }
 
-        if ($container->hasExtension('httplug')) {
-            $container->prependExtensionConfig(
+        $container->prependExtensionConfig(
                 'httplug',
                 [
                     'plugins' => [
@@ -87,10 +84,8 @@ class T3GKeycloakExtension extends Extension
                     ]
                 ]
             );
-        }
 
-        if ($container->hasExtension('jose')) {
-            $container->prependExtensionConfig(
+        $container->prependExtensionConfig(
                 'jose',
                 [
                     'key_sets' => [
@@ -116,7 +111,6 @@ class T3GKeycloakExtension extends Extension
                     ]
                 ]
             );
-        }
 
         $loader = new YamlFileLoader(
             $container,
