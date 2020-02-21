@@ -32,13 +32,19 @@ class KeyCloakAuthenticator extends SocialAuthenticator
      * @var JWTService
      */
     private JWTService $JWTService;
+    /**
+     * @var string
+     */
+    private string $redirectRoute;
 
     public function __construct(
         ClientRegistry $clientRegistry,
-        JWTService $JWTService
+        JWTService $JWTService,
+        string $redirectRoute
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->JWTService = $JWTService;
+        $this->redirectRoute = $redirectRoute;
     }
 
     /**
@@ -53,7 +59,7 @@ class KeyCloakAuthenticator extends SocialAuthenticator
 
     public function supports(Request $request): bool
     {
-        return 'login_check' === $request->attributes->get('_route');
+        return $this->redirectRoute === $request->attributes->get('_route');
     }
 
     /**
