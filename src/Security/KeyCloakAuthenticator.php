@@ -15,9 +15,11 @@ use KnpU\OAuth2ClientBundle\Client\Provider\KeycloakClient;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -25,27 +27,24 @@ use T3G\Bundle\Keycloak\Service\JWTService;
 
 class KeyCloakAuthenticator extends SocialAuthenticator
 {
-    /**
-     * @var ClientRegistry
-     */
     private ClientRegistry $clientRegistry;
-    /**
-     * @var JWTService
-     */
+
     private JWTService $JWTService;
-    /**
-     * @var string
-     */
+    
     private string $redirectRoute;
+    
+    private SessionInterface $session;
 
     public function __construct(
         ClientRegistry $clientRegistry,
         JWTService $JWTService,
-        string $redirectRoute
+        string $redirectRoute,
+        SessionInterface $session
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->JWTService = $JWTService;
         $this->redirectRoute = $redirectRoute;
+        $this->session = $session;
     }
 
     /**
@@ -82,9 +81,10 @@ class KeyCloakAuthenticator extends SocialAuthenticator
         /** @var KeycloakClient $client */
         $client = $this->getClient();
         try {
+            /** @var AccessToken $credentials */
             if ($this->JWTService->verify($credentials)) {
+                $this->session->set('JWT_TOKEN', $credentials->getToken());
                 $payload = json_decode($this->JWTService->getPayload(), false, 512, JSON_THROW_ON_ERROR);
-                $signatures = $this->JWTService->getSignatures();
                 $user = $client->fetchUserFromToken($credentials);
                 /* @var KeyCloakUserProvider $userProvider */
                 return $userProvider->loadUserByUsername($user->getName(), $payload->realm_access->roles);
