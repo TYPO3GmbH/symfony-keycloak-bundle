@@ -16,13 +16,8 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class KeyCloakUserProvider implements UserProviderInterface
 {
-    /**
-     * @var array
-     */
     private array $roleMapping;
-    /**
-     * @var array
-     */
+
     private array $defaultRoles;
 
     public function __construct(array $roleMapping, array $defaultRoles = ['ROLE_USER', 'ROLE_OAUTH_USER'])

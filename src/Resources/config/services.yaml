@@ -25,3 +25,10 @@ services:
     arguments:
       $JWTService: '@keycloak.typo3.com.jwt.service'
       $redirectRoute: '%t3g_keycloak.keycloak.redirect_route%'
+
+  T3G\Bundle\Keycloak\Security\KeyCloakTokenAuthenticator:
+    class: T3G\Bundle\Keycloak\Security\KeyCloakTokenAuthenticator
+    public: true
+    arguments:
+      $JWTService: '@keycloak.typo3.com.jwt.service'
+      $redirectRoute: '%t3g_keycloak.keycloak.redirect_route%'
