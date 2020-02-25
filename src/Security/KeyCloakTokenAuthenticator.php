@@ -111,6 +111,7 @@ class KeyCloakTokenAuthenticator extends AbstractGuardAuthenticator
             // @TODO: scopes and resource_access->account->roles must be mapped
             if ($this->JWTService->verify($token)) {
                 $payload = json_decode($this->JWTService->getPayload(), false, 512, JSON_THROW_ON_ERROR);
+                $this->session->set('JWT_PAYLOAD', $payload);
                 return $userProvider->loadUserByUsername($payload->preferred_username, $payload->realm_access->roles);
             }
         } catch (IdentityProviderException $e) {
