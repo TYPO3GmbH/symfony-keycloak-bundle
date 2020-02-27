@@ -16,6 +16,7 @@ use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,7 +55,7 @@ class KeyCloakTokenAuthenticator extends AbstractGuardAuthenticator
      * @param AuthenticationException $authException The exception that started the authentication process
      * @return RedirectResponse
      */
-    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
+    public function start(Request $request, AuthenticationException $authException = null): Response
     {
         $data = [
             // you might translate this message
