@@ -87,7 +87,7 @@ class KeyCloakAuthenticator extends SocialAuthenticator
                 $payload = json_decode($this->JWTService->getPayload(), false, 512, JSON_THROW_ON_ERROR);
                 $user = $client->fetchUserFromToken($credentials);
                 /* @var KeyCloakUserProvider $userProvider */
-                return $userProvider->loadUserByUsername($user->getName(), $payload->realm_access->roles);
+                return $userProvider->loadUserByUsername($user->toArray()['preferred_username'], $payload->realm_access->roles);
             }
         } catch (IdentityProviderException $e) {
             throw new AuthenticationException($e->getMessage());
