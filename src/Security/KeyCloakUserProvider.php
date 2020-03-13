@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
-use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -29,27 +28,27 @@ class KeyCloakUserProvider implements UserProviderInterface
     /**
      * @param string $username
      * @param array $keycloakGroups
-     * @return OAuthUser
+     * @return KeyCloakUser
      */
-    public function loadUserByUsername($username, array $keycloakGroups = []): OAuthUser
+    public function loadUserByUsername($username, array $keycloakGroups = []): KeyCloakUser
     {
         $roles = array_intersect_key($this->roleMapping, array_flip($keycloakGroups));
         $roles = array_merge($roles, $this->defaultRoles);
 
-        return new OAuthUser($username, array_values($roles));
+        return new KeyCloakUser($username, array_values($roles));
     }
 
     /**
      * @param UserInterface $user
-     * @return OAuthUser
+     * @return KeyCloakUser
      */
-    public function refreshUser(UserInterface $user): OAuthUser
+    public function refreshUser(UserInterface $user): KeyCloakUser
     {
-        if (!$user instanceof OAuthUser) {
+        if (!$user instanceof KeyCloakUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
-        return new OAuthUser($user->getUsername(), $user->getRoles());
+        return new KeyCloakUser($user->getUsername(), $user->getRoles());
     }
 
     /**
@@ -58,6 +57,6 @@ class KeyCloakUserProvider implements UserProviderInterface
      */
     public function supportsClass($class): bool
     {
-        return OAuthUser::class === $class;
+        return KeyCloakUser::class === $class;
     }
 }
