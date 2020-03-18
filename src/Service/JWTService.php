@@ -9,35 +9,23 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\Service;
 
-use App\Exception\NoTokenException;
 use Jose\Bundle\JoseFramework\Services\JWSVerifier;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
 use Jose\Component\Signature\Signature;
 use League\OAuth2\Client\Token\AccessToken;
+use T3G\Bundle\Keycloak\Exception\NoTokenException;
 
 class JWTService
 {
-    /**
-     * @var JWSVerifier
-     */
-    private $verifier;
+    private JWSVerifier $verifier;
 
-    /**
-     * @var JWKSet
-     */
-    private $set;
+    private JWKSet $set;
 
-    /**
-     * @var JWSSerializerManager
-     */
-    private $serializerManager;
+    private JWSSerializerManager $serializerManager;
 
-    /**
-     * @var string
-     */
-    private $token;
+    private ?string $token;
 
     public function __construct(JWSSerializerManagerFactory $JWSSerializerManagerFactory, JWSVerifier $JWSVerifier, JWKSet $JWKSet)
     {

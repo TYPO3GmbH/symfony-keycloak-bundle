@@ -26,31 +26,10 @@ class T3GKeycloakExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('t3g_keycloak.keycloak.redirect_route', $config['keycloak']['redirect_route'] ?? '');
-        $container->setParameter('t3g_keycloak.keycloak.auth_server_url', $config['keycloak']['auth_server_url'] ?? '');
         $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url'] ?? '');
         $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
-        $container->setParameter('t3g_keycloak.keycloak.oauth.client_id', $config['keycloak']['oauth']['client_id'] ?? '');
-        $container->setParameter('t3g_keycloak.keycloak.oauth.client_secret', $config['keycloak']['oauth']['client_secret'] ?? '');
-
-        $container->prependExtensionConfig(
-            'knpu_oauth2_client',
-            [
-                    'clients' => [
-                        'keycloak' => [
-                            'type' => 'keycloak',
-                            'auth_server_url' => '%t3g_keycloak.keycloak.auth_server_url%',
-                            'realm' => 'TYPO3',
-                            'client_id' => '%t3g_keycloak.keycloak.oauth.client_id%',
-                            'client_secret' => '%t3g_keycloak.keycloak.oauth.client_secret%',
-                            'redirect_route' => '%t3g_keycloak.keycloak.redirect_route%',
-                            'use_state' => true,
-                        ],
-                    ]
-                ]
-        );
 
         $container->prependExtensionConfig(
             'httplug',

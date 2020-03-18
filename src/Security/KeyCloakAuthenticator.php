@@ -9,41 +9,22 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
-use KnpU\OAuth2ClientBundle\Client\Provider\KeycloakClient;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
-use KnpU\OAuth2ClientBundle\Security\User\OAuthUser;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use T3G\Bundle\Keycloak\Service\JWTService;
+use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-class KeyCloakAuthenticator extends SocialAuthenticator
+class KeyCloakAuthenticator extends AbstractGuardAuthenticator
 {
-    private ClientRegistry $clientRegistry;
-
-    private JWTService $JWTService;
-    
-    private string $redirectRoute;
-    
     private SessionInterface $session;
 
-    public function __construct(
-        ClientRegistry $clientRegistry,
-        JWTService $JWTService,
-        string $redirectRoute,
-        SessionInterface $session
-    ) {
-        $this->clientRegistry = $clientRegistry;
-        $this->JWTService = $JWTService;
-        $this->redirectRoute = $redirectRoute;
+    public function __construct(SessionInterface $session)
+    {
         $this->session = $session;
     }
 
@@ -59,41 +40,32 @@ class KeyCloakAuthenticator extends SocialAuthenticator
 
     public function supports(Request $request): bool
     {
-        return $this->redirectRoute === $request->attributes->get('_route');
+        return $request->headers->has('X-Auth-Token')
+            && $request->headers->has('X-Auth-Username')
+            && $request->headers->has('X-Auth-Userid')
+            && $request->headers->has('X-Auth-Roles');
     }
 
     /**
-     * @return mixed Any non-null value
+     * @param Request $request
+     * @return Request
      */
-    public function getCredentials(Request $request)
+    public function getCredentials(Request $request): Request
     {
-        return $this->fetchAccessToken($this->getClient());
+        return $request;
     }
 
     /**
-     * @param mixed $credentials
-     *
+     * @param Request $credentials
      * @param UserProviderInterface $userProvider
-     * @return OAuthUser|null
+     * @return KeyCloakUser|null
      */
-    public function getUser($credentials, UserProviderInterface $userProvider): ?OAuthUser
+    public function getUser($credentials, UserProviderInterface $userProvider): ?KeyCloakUser
     {
-        /** @var KeycloakClient $client */
-        $client = $this->getClient();
-        try {
-            /** @var AccessToken $credentials */
-            if ($this->JWTService->verify($credentials)) {
-                $this->session->set('JWT_TOKEN', $credentials->getToken());
-                $payload = json_decode($this->JWTService->getPayload(), false, 512, JSON_THROW_ON_ERROR);
-                $user = $client->fetchUserFromToken($credentials);
-                /* @var KeyCloakUserProvider $userProvider */
-                return $userProvider->loadUserByUsername($user->toArray()['preferred_username'], $payload->realm_access->roles);
-            }
-        } catch (IdentityProviderException $e) {
-            throw new AuthenticationException($e->getMessage());
-        }
+        $this->session->set('JWT_TOKEN', $credentials->headers->get('X-Auth-Token'));
+        $roles = explode(',', $credentials->headers->get('X-Auth-Roles')) ?? [];
 
-        return null;
+        return $userProvider->loadUserByUsername($credentials->headers->get('X-Auth-Username'), $roles);
     }
 
     /**
@@ -120,11 +92,21 @@ class KeyCloakAuthenticator extends SocialAuthenticator
     }
 
     /**
-     * @return OAuth2ClientInterface
+     * @param Request $credentials
+     * @param UserInterface $user
+     * @return bool
      */
-    private function getClient(): OAuth2ClientInterface
+    public function checkCredentials($credentials, UserInterface $user): bool
     {
-        return $this->clientRegistry
-            ->getClient('keycloak');
+        // Gatekeeper takes care of credential validation
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function supportsRememberMe(): bool
+    {
+        return false;
     }
 }

@@ -19,13 +19,11 @@
         "php": "^7.4",
         "ext-json": "*",
         "ext-gmp": "*",
-        "league/oauth2-client": "^2.0 <2.3.0",
         "nyholm/psr7": "^1.2",
         "php-http/cache-plugin": "^1.7",
         "php-http/curl-client": "^2.1",
         "php-http/httplug-bundle": "^1.17",
         "rbdwllr/reallysimplejwt": "^2.1",
-        "stevenmaguire/oauth2-keycloak": "^2.1",
         "symfony/dependency-injection": "^4.3",
         "symfony/framework-bundle": "^4.3",
         "symfony/security-bundle": "^4.3",
@@ -37,8 +35,7 @@
         "web-token/jwt-key-mgmt": "^2.1",
         "web-token/jwt-signature": "^2.1",
         "web-token/jwt-signature-algorithm-hmac": "^2.1",
-        "web-token/jwt-signature-algorithm-rsa": "^2.1",
-        "knpuniversity/oauth2-client-bundle": "^1.33"
+        "web-token/jwt-signature-algorithm-rsa": "^2.1"
     },
     "autoload": {
         "psr-4": {
