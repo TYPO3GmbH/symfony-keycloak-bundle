@@ -14,7 +14,6 @@ use Jose\Component\Core\JWKSet;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
 use Jose\Component\Signature\Signature;
-use League\OAuth2\Client\Token\AccessToken;
 use T3G\Bundle\Keycloak\Exception\NoTokenException;
 
 class JWTService
@@ -34,9 +33,9 @@ class JWTService
         $this->serializerManager = $JWSSerializerManagerFactory->create(['jws_compact']);
     }
 
-    public function verify(AccessToken $token): bool
+    public function verify(string $token): bool
     {
-        $this->token = $token->getToken();
+        $this->token = $token;
         $jws = $this->serializerManager->unserialize($this->token);
         $result = $this->verifier->verifyWithKeySet($jws, $this->set, 0);
         if (!$result) {
