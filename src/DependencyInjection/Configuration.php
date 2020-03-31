@@ -20,7 +20,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('t3g_keycloak');
         $treeBuilder->getRootNode()
             ->children()
-                ->arrayNode('keycloak')
+                ->arrayNode('keycloak')->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('jku_url')->defaultValue('https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs')->end()
                         ->scalarNode('user_provider_class')->defaultValue(KeyCloakUserProvider::class)->end()
