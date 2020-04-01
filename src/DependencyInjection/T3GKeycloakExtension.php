@@ -12,9 +12,10 @@ namespace T3G\Bundle\Keycloak\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-class T3GKeycloakExtension extends Extension
+class T3GKeycloakExtension extends Extension implements PrependExtensionInterface
 {
     public function getAlias()
     {
@@ -23,17 +24,28 @@ class T3GKeycloakExtension extends Extension
 
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('services.yaml');
+    }
 
-        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url'] ?? '');
+    public function prepend(ContainerBuilder $container): void
+    {
+        $configs = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration(new Configuration(), $configs);
+
+        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url']);
         $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
 
-        $container->prependExtensionConfig(
-            'httplug',
-            [
+        if ($container->hasExtension($this->getAlias())) {
+            $container->prependExtensionConfig($this->getAlias(), ['keycloak' => []]);
+        }
+
+        if ($container->hasExtension('httplug')) {
+            $container->prependExtensionConfig(
+                'httplug',
+                [
                     'plugins' => [
                         'cache' => [
                             'cache_pool' => 'cache.app',
@@ -63,11 +75,13 @@ class T3GKeycloakExtension extends Extension
                         'stream_factory' => 'Nyholm\Psr7\Factory\Psr17Factory',
                     ]
                 ]
-        );
+            );
+        }
 
-        $container->prependExtensionConfig(
-            'jose',
-            [
+        if ($container->hasExtension('jose')) {
+            $container->prependExtensionConfig(
+                'jose',
+                [
                     'key_sets' => [
                         'login_typo3_com' => [
                             'jku' => [
@@ -90,12 +104,7 @@ class T3GKeycloakExtension extends Extension
                         'request_factory' => 'httplug.message_factory'
                     ]
                 ]
-        );
-
-        $loader = new YamlFileLoader(
-            $container,
-            new FileLocator(__DIR__ . '/../Resources/config')
-        );
-        $loader->load('services.yaml');
+            );
+        }
     }
 }

@@ -1,32 +1,6 @@
-Installation
-============
+# Installation
 
-Make sure Composer is installed globally, as explained in the
-[installation chapter](https://getcomposer.org/doc/00-intro.md)
-of the Composer documentation.
-
-### Step 1: Make sure the config is present
-
-The configuration should be present *before* installing the bundle.
-
-```yaml
-# config/packages/t3g_keycloak.yaml
-t3g_keycloak:
-  keycloak:
-    # The name of the route to redirect back to from Keycloak
-    redirect_route: home
-    # Set both of these in the .env.local
-    oauth:
-      client_id: '%env(OAUTH_CLIENT_ID)%'
-      client_secret: '%env(OAUTH_CLIENT_SECRET)%'
-    # Key/value array of ldap role against the role it will represent in your app
-    role_mapping:
-      typo3.gmbh.member: ROLE_ADMIN
-    # The default roles every user gets
-    default_roles: ['ROLE_USER', 'ROLE_OAUTH_USER']
-```
-
-### Step 2: Download the Bundle
+## Step 1: Download the Bundle
 
 Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
@@ -35,7 +9,7 @@ following command to download the latest stable version of this bundle:
 $ composer require t3g/symfony-keycloak-bundle
 ```
 
-### Step 3: Add the firewall to security.yaml
+## Step 2: Add the firewall to security.yaml
 
 Update your security.yaml like this
 
@@ -62,7 +36,7 @@ logout:
   path: /logout
 ```
 
-### Step 4: Enable the Bundle
+## Step 3: Enable the Bundle
 
 Then, enable the bundle and its dependencies by adding it to the list of registered bundles
 in the `config/bundles.php` file of your project:
@@ -74,15 +48,14 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    T3G\Bundle\Keycloak\T3GKeycloakBundle::class => ['all' => true],
     Jose\Bundle\JoseFramework\JoseFrameworkBundle::class => ['all' => true],
-    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class => ['all' => true],
-    Http\HttplugBundle\HttplugBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
+    Http\HttplugBundle\HttplugBundle::class => ['all' => true],
+    T3G\Bundle\Keycloak\T3GKeycloakBundle::class => ['all' => true],
 ];
 ```
 
-### Step 5: Create a login controller
+## Step 5: Create a login controller
 
 In order to log in, a simple login controller will suffice:
 
@@ -114,4 +87,31 @@ class HomeController extends AbstractController
             ], []);
     }
 }
+```
+
+# Configuration
+
+```bash
+# displays the default config values
+php bin/console config:dump-reference t3g_keycloak
+
+# displays the actual config values used by your application
+php bin/console debug:config t3g_keycloak 
+```
+
+## Default configuration
+
+```yaml
+# Default configuration for extension with alias: "t3g_keycloak"
+t3g_keycloak:
+    keycloak:
+        jku_url:              'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs'
+        user_provider_class:  T3G\Bundle\Keycloak\Security\KeyCloakUserProvider
+        default_roles:
+            # Defaults:
+            - ROLE_USER
+            - ROLE_OAUTH_USER
+        role_mapping:
+            # Default:
+            typo3.gmbh.member:   ROLE_ADMIN
 ```
