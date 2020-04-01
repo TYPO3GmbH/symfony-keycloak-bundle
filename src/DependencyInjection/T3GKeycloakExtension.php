@@ -38,6 +38,10 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
 
+        if ($container->hasExtension($this->getAlias())) {
+            $container->prependExtensionConfig($this->getAlias(), ['keycloak' => []]);
+        }
+
         if ($container->hasExtension('httplug')) {
             $container->prependExtensionConfig(
                 'httplug',
@@ -73,6 +77,7 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
                 ]
             );
         }
+
         if ($container->hasExtension('jose')) {
             $container->prependExtensionConfig(
                 'jose',
