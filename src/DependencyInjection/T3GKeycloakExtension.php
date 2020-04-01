@@ -24,20 +24,20 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
 
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-
-        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url'] ?? '');
-        $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
-        $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
-        $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
-
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
     }
 
     public function prepend(ContainerBuilder $container): void
     {
+        $configs = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration(new Configuration(), $configs);
+
+        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url']);
+        $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
+        $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
+        $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
+
         if ($container->hasExtension('httplug')) {
             $container->prependExtensionConfig(
                 'httplug',
