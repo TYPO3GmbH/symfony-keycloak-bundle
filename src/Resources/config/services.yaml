@@ -22,3 +22,5 @@ services:
   T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator:
     class: T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
     public: true
+    arguments:
+      $JWTService: '@keycloak.typo3.com.jwt.service'
