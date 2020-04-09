@@ -28,12 +28,13 @@ class KeyCloakUserProvider implements UserProviderInterface
     /**
      * @param string $username
      * @param array $keycloakGroups
+     * @param array $scopes
      * @return KeyCloakUser
      */
-    public function loadUserByUsername($username, array $keycloakGroups = []): KeyCloakUser
+    public function loadUserByUsername($username, array $keycloakGroups = [], array $scopes = []): KeyCloakUser
     {
         $roles = array_intersect_key($this->roleMapping, array_flip($keycloakGroups));
-        $roles = array_merge($roles, $this->defaultRoles);
+        $roles = array_merge($roles, $scopes, $this->defaultRoles);
 
         return new KeyCloakUser($username, array_values($roles));
     }

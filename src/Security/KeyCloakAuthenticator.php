@@ -72,7 +72,8 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
 
         return $userProvider->loadUserByUsername(
             $credentials->headers->get('X-Auth-Username'),
-            array_merge($roles, $scopes)
+            $roles,
+            $scopes
         );
     }
 
