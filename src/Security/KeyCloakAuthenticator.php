@@ -18,14 +18,18 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use T3G\Bundle\Keycloak\Service\JWTService;
 
 class KeyCloakAuthenticator extends AbstractGuardAuthenticator
 {
     private SessionInterface $session;
 
-    public function __construct(SessionInterface $session)
+    private JWTService $JWTService;
+
+    public function __construct(SessionInterface $session, JWTService $JWTService)
     {
         $this->session = $session;
+        $this->JWTService = $JWTService;
     }
 
     /**
@@ -64,8 +68,12 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
     {
         $this->session->set('JWT_TOKEN', $credentials->headers->get('X-Auth-Token'));
         $roles = explode(',', $credentials->headers->get('X-Auth-Roles')) ?? [];
+        $scopes = $this->getRolesFromToken($credentials->headers->get('X-Auth-Token'));
 
-        return $userProvider->loadUserByUsername($credentials->headers->get('X-Auth-Username'), $roles);
+        return $userProvider->loadUserByUsername(
+            $credentials->headers->get('X-Auth-Username'),
+            array_merge($roles, $scopes)
+        );
     }
 
     /**
@@ -108,5 +116,19 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe(): bool
     {
         return false;
+    }
+
+    private function getRolesFromToken(string $token): array
+    {
+        $roles= [];
+        $this->JWTService->verify($token);
+        $payload = json_decode($this->JWTService->getPayload(), true, 512, JSON_THROW_ON_ERROR);
+        $scopes = explode(' ', $payload['scope']);
+
+        foreach ($scopes as $scope) {
+            $roles[] = 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope));
+        }
+
+        return $roles;
     }
 }
