@@ -34,9 +34,11 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url']);
+        $container->setParameter('t3g_keycloak.keycloak.logout_url', $config['keycloak']['logout_url']);
         $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
+        $container->setParameter('t3g_keycloak.keycloak.logout_redirect_route', $config['keycloak']['logout_redirect_route']);
 
         if ($container->hasExtension($this->getAlias())) {
             $container->prependExtensionConfig($this->getAlias(), ['keycloak' => []]);

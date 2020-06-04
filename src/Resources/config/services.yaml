@@ -24,3 +24,10 @@ services:
     public: true
     arguments:
       $JWTService: '@keycloak.typo3.com.jwt.service'
+
+  keycloak.typo3.com.logout.handler:
+    class: T3G\Bundle\Keycloak\Security\LogoutSuccessHandler
+    public: true
+    arguments:
+      $returnRoute: '%t3g_keycloak.keycloak.logout_redirect_route%'
+      $logoutUrl: '%t3g_keycloak.keycloak.logout_url%'

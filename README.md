@@ -24,7 +24,7 @@ security:
             anonymous: true
             logout:
                 path: /logout
-                target: home
+                success_handler: keycloak.typo3.com.logout.handler
             guard:
                 authenticators:
                     - T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
@@ -55,40 +55,6 @@ return [
 ];
 ```
 
-## Step 5: Create a login controller
-
-In order to log in, a simple login controller will suffice:
-
-```php
-<?php
-
-namespace App\Controller;
-
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
-
-class HomeController extends AbstractController
-{
-    /**
-     * Link to this controller to start the "connect" process.
-     *
-     * @Route("/login", name="login")
-     * @param ClientRegistry $clientRegistry
-     * @return RedirectResponse
-     */
-    public function login(ClientRegistry $clientRegistry): RedirectResponse
-    {
-        return $clientRegistry
-            ->getClient('keycloak')
-            ->redirect([
-                'profile roles email', // the scopes you want to access
-            ], []);
-    }
-}
-```
-
 # Configuration
 
 ```bash
@@ -104,9 +70,12 @@ php bin/console debug:config t3g_keycloak
 ```yaml
 # Default configuration for extension with alias: "t3g_keycloak"
 t3g_keycloak:
+    app_url: 'localhost'
     keycloak:
-        jku_url:              'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs'
-        user_provider_class:  T3G\Bundle\Keycloak\Security\KeyCloakUserProvider
+        jku_url:                'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs'
+        logout_url:             'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/logout'
+        logout_redirect_route:  'home'
+        user_provider_class:    T3G\Bundle\Keycloak\Security\KeyCloakUserProvider
         default_roles:
             # Defaults:
             - ROLE_USER
