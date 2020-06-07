@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /*
  * This file is part of the package t3g/symfony-keycloak-bundle.
@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -33,7 +37,9 @@ class KeyCloakUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username, array $keycloakGroups = [], array $scopes = []): KeyCloakUser
     {
-        $roles = array_intersect_key($this->roleMapping, array_flip($keycloakGroups));
+        $roles = array_intersect_key($this->roleMapping, array_flip(array_map(static function ($v) {
+            return str_replace('-', '_', $v);
+        }, $keycloakGroups)));
         $roles = array_merge($roles, $scopes, $this->defaultRoles);
 
         return new KeyCloakUser($username, array_values($roles));
