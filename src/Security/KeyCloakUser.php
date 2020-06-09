@@ -14,8 +14,10 @@ class KeyCloakUser implements UserInterface
 {
     private string $username;
     private array $roles;
+    private ?string $fullName = null;
+    private string $email;
 
-    public function __construct(string $username, array $roles)
+    public function __construct(string $username, array $roles, string $email, ?string $fullName = null)
     {
         $this->username = $username;
         $this->roles = $roles;
@@ -44,5 +46,15 @@ class KeyCloakUser implements UserInterface
     public function eraseCredentials(): void
     {
         // Do nothing.
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 }

@@ -9,10 +9,6 @@ declare(strict_types = 1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
