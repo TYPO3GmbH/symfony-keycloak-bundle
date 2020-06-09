@@ -15,12 +15,14 @@ class KeyCloakUser implements UserInterface
     private string $username;
     private array $roles;
     private ?string $fullName = null;
-    private string $email;
+    private ?string $email = null;
 
-    public function __construct(string $username, array $roles, string $email, ?string $fullName = null)
+    public function __construct(string $username, array $roles, ?string $email, ?string $fullName = null)
     {
         $this->username = $username;
         $this->roles = $roles;
+        $this->email = $email;
+        $this->fullName = $fullName;
     }
 
     public function getRoles(): array
@@ -53,8 +55,16 @@ class KeyCloakUser implements UserInterface
         return $this->fullName;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
+    }
+
+    /**
+     * @return string The full name of the user. When not present, the username
+     */
+    public function getDisplayName(): string
+    {
+        return $this->fullName ?? $this->username;
     }
 }

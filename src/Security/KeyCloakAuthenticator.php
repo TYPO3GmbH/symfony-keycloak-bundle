@@ -147,10 +147,10 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         return $data['name'] ?? null;
     }
 
-    public function getEmailFromToken(string $token): string
+    public function getEmailFromToken(string $token): ?string
     {
         $data = $this->decodeJwtToken($token);
 
-        return $data['email'];
+        return $data['email'] ?? null;
     }
 }
