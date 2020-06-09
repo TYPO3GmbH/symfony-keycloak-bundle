@@ -61,7 +61,7 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * @param Request $credentials
-     * @param UserProviderInterface $userProvider
+     * @param UserProviderInterface|KeyCloakUserProvider $userProvider
      * @return KeyCloakUser|null
      */
     public function getUser($credentials, UserProviderInterface $userProvider): ?KeyCloakUser
@@ -73,7 +73,9 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         return $userProvider->loadUserByUsername(
             $credentials->headers->get('X-Auth-Username'),
             $roles,
-            $scopes
+            $scopes,
+            $this->getEmailFromToken($credentials->headers->get('X-Auth-Token')),
+            $this->getFullNameFromToken($credentials->headers->get('X-Auth-Token'))
         );
     }
 
@@ -119,17 +121,36 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         return false;
     }
 
+    private function decodeJwtToken(string $token): array
+    {
+        $this->JWTService->verify($token);
+
+        return json_decode($this->JWTService->getPayload(), true, 512, JSON_THROW_ON_ERROR);
+    }
+
     private function getRolesFromToken(string $token): array
     {
         $roles= [];
-        $this->JWTService->verify($token);
-        $payload = json_decode($this->JWTService->getPayload(), true, 512, JSON_THROW_ON_ERROR);
-        $scopes = explode(' ', $payload['scope']);
+        $scopes = explode(' ', $this->decodeJwtToken($token)['scope']);
 
         foreach ($scopes as $scope) {
             $roles[] = 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope));
         }
 
         return $roles;
+    }
+
+    public function getFullNameFromToken(string $token): ?string
+    {
+        $data = $this->decodeJwtToken($token);
+
+        return $data['name'] ?? null;
+    }
+
+    public function getEmailFromToken(string $token): ?string
+    {
+        $data = $this->decodeJwtToken($token);
+
+        return $data['email'] ?? null;
     }
 }

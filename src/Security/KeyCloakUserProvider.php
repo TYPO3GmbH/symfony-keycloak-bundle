@@ -9,10 +9,6 @@ declare(strict_types = 1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -33,16 +29,23 @@ class KeyCloakUserProvider implements UserProviderInterface
      * @param string $username
      * @param array $keycloakGroups
      * @param array $scopes
+     * @param string|null $email
+     * @param string|null $fullName
      * @return KeyCloakUser
      */
-    public function loadUserByUsername($username, array $keycloakGroups = [], array $scopes = []): KeyCloakUser
-    {
+    public function loadUserByUsername(
+        $username,
+        array $keycloakGroups = [],
+        array $scopes = [],
+        ?string $email = null,
+        ?string $fullName = null
+    ): KeyCloakUser {
         $roles = array_intersect_key($this->roleMapping, array_flip(array_map(static function ($v) {
             return str_replace('-', '_', $v);
         }, $keycloakGroups)));
         $roles = array_merge($roles, $scopes, $this->defaultRoles);
 
-        return new KeyCloakUser($username, array_values($roles));
+        return new KeyCloakUser($username, array_values($roles), $email, $fullName);
     }
 
     /**
@@ -55,7 +58,7 @@ class KeyCloakUserProvider implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
-        return new KeyCloakUser($user->getUsername(), $user->getRoles());
+        return new KeyCloakUser($user->getUsername(), $user->getRoles(), $user->getEmail(), $user->getFullName());
     }
 
     /**
