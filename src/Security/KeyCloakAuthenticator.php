@@ -46,8 +46,7 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
     {
         return $request->headers->has('X-Auth-Token')
             && $request->headers->has('X-Auth-Username')
-            && $request->headers->has('X-Auth-Userid')
-            && $request->headers->has('X-Auth-Roles');
+            && $request->headers->has('X-Auth-Userid');
     }
 
     /**
@@ -67,8 +66,8 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider): ?KeyCloakUser
     {
         $this->session->set('JWT_TOKEN', $credentials->headers->get('X-Auth-Token'));
-        $roles = explode(',', $credentials->headers->get('X-Auth-Roles')) ?? [];
-        $scopes = $this->getRolesFromToken($credentials->headers->get('X-Auth-Token'));
+        $roles = $this->getRolesFromToken($credentials->headers->get('X-Auth-Token'));
+        $scopes = $this->getScopesFromToken($credentials->headers->get('X-Auth-Token'));
 
         return $userProvider->loadUserByUsername(
             $credentials->headers->get('X-Auth-Username'),
@@ -128,7 +127,7 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         return json_decode($this->JWTService->getPayload(), true, 512, JSON_THROW_ON_ERROR);
     }
 
-    private function getRolesFromToken(string $token): array
+    private function getScopesFromToken(string $token): array
     {
         $roles= [];
         $scopes = explode(' ', $this->decodeJwtToken($token)['scope']);
@@ -138,6 +137,11 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         }
 
         return $roles;
+    }
+
+    private function getRolesFromToken(string $token): array
+    {
+        return $this->decodeJwtToken($token)['realm_access']['roles'] ?? [];
     }
 
     public function getFullNameFromToken(string $token): ?string
