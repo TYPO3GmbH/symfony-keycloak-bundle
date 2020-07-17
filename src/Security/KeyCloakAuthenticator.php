@@ -22,9 +22,9 @@ use T3G\Bundle\Keycloak\Service\JWTService;
 
 class KeyCloakAuthenticator extends AbstractGuardAuthenticator
 {
-    private SessionInterface $session;
+    protected SessionInterface $session;
 
-    private JWTService $JWTService;
+    protected JWTService $JWTService;
 
     public function __construct(SessionInterface $session, JWTService $JWTService)
     {
@@ -120,14 +120,14 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         return false;
     }
 
-    private function decodeJwtToken(string $token): array
+    protected function decodeJwtToken(string $token): array
     {
         $this->JWTService->verify($token);
 
         return json_decode($this->JWTService->getPayload(), true, 512, JSON_THROW_ON_ERROR);
     }
 
-    private function getScopesFromToken(string $token): array
+    protected function getScopesFromToken(string $token): array
     {
         $roles= [];
         $scopes = explode(' ', $this->decodeJwtToken($token)['scope']);
@@ -139,7 +139,7 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
         return $roles;
     }
 
-    private function getRolesFromToken(string $token): array
+    protected function getRolesFromToken(string $token): array
     {
         return $this->decodeJwtToken($token)['realm_access']['roles'] ?? [];
     }
