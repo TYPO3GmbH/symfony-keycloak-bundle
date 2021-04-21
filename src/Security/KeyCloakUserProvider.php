@@ -31,6 +31,7 @@ class KeyCloakUserProvider implements UserProviderInterface
      * @param array $scopes
      * @param string|null $email
      * @param string|null $fullName
+     * @param bool $fresh
      * @return KeyCloakUser
      */
     public function loadUserByUsername(
@@ -38,14 +39,15 @@ class KeyCloakUserProvider implements UserProviderInterface
         array $keycloakGroups = [],
         array $scopes = [],
         ?string $email = null,
-        ?string $fullName = null
+        ?string $fullName = null,
+        bool $fresh = false
     ): KeyCloakUser {
         $roles = array_intersect_key($this->roleMapping, array_flip(array_map(static function ($v) {
             return str_replace('-', '_', $v);
         }, $keycloakGroups)));
         $roles = array_merge($roles, $scopes, $this->defaultRoles);
 
-        return new KeyCloakUser($username, array_values($roles), $email, $fullName);
+        return new KeyCloakUser($username, array_values($roles), $email, $fullName, $fresh);
     }
 
     /**
@@ -58,7 +60,7 @@ class KeyCloakUserProvider implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
-        return new KeyCloakUser($user->getUsername(), $user->getRoles(), $user->getEmail(), $user->getFullName());
+        return new KeyCloakUser($user->getUsername(), $user->getRoles(), $user->getEmail(), $user->getFullName(), false);
     }
 
     /**

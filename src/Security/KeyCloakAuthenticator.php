@@ -74,7 +74,8 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
             $roles,
             $scopes,
             $this->getEmailFromToken($credentials->headers->get('X-Auth-Token')),
-            $this->getFullNameFromToken($credentials->headers->get('X-Auth-Token'))
+            $this->getFullNameFromToken($credentials->headers->get('X-Auth-Token')),
+            true
         );
     }
 

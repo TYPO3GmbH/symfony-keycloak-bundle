@@ -16,13 +16,15 @@ class KeyCloakUser implements UserInterface
     private array $roles;
     private ?string $fullName = null;
     private ?string $email = null;
+    private bool $fresh = false;
 
-    public function __construct(string $username, array $roles, ?string $email = null, ?string $fullName = null)
+    public function __construct(string $username, array $roles, ?string $email = null, ?string $fullName = null, bool $fresh = false)
     {
         $this->username = $username;
         $this->roles = $roles;
         $this->email = $email;
         $this->fullName = $fullName;
+        $this->fresh = $fresh;
     }
 
     public function getRoles(): array
@@ -66,5 +68,17 @@ class KeyCloakUser implements UserInterface
     public function getDisplayName(): string
     {
         return $this->fullName ?? $this->username;
+    }
+
+    public function isFresh(): bool
+    {
+        return $this->fresh;
+    }
+
+    public function setFresh(bool $fresh): self
+    {
+        $this->fresh = $fresh;
+
+        return $this;
     }
 }
