@@ -1,4 +1,7 @@
-/.idea/
-/composer.lock
-/vendor/
-/.php_cs.cache
+bin
+node_modules
+vendor
+*.cache
+*.idea
+*.lock
+/.phplint-cache

@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+
+jobs:
+  build-php:
+    name: Build ${{ matrix.php }} / ${{ matrix.symfony }}
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1']
+        symfony: ['^4.4', '^5.0', '^6.0']
+        exclude:
+          - symfony: '^6.0'
+            php: '7.4'
+        include:
+          - symfony: '^4.4'
+            deprecations: 'max[self]=0'
+          - symfony: '^5.0'
+            deprecations: ''
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, ctype, iconv
+          coverage: none
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: vendor
+          key: ${{ matrix.php }}-composer-${{ matrix.symfony }}
+
+      - name: Install
+        run: |
+          sed -ri 's/"symfony\/framework-bundle": "(.+)"/"symfony\/framework-bundle": "'${{ matrix.symfony }}'"/' composer.json;
+          composer update --prefer-dist --no-progress
+          composer info
+          git checkout composer.json
+
+      - name: Lint
+        run: composer t3g:test:php:lint
+
+      - name: CGL
+        run: composer t3g:cgl
+
+      - name: Git Status
+        run: |
+          git status
+          git status | grep -q "nothing to commit, working tree clean"
