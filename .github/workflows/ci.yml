@@ -9,22 +9,23 @@ on:
 
 jobs:
   build-php:
-    name: Build ${{ matrix.php }} / ${{ matrix.symfony }}
+    name: PHP ${{ matrix.php }} - Symfony ${{ matrix.symfony }} - Experimental ${{ matrix.experimental }}
+    continue-on-error: ${{ matrix.experimental }}
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 4
       fail-fast: false
       matrix:
+        symfony: ['^4.4', '^5.4']
         php: ['7.4', '8.0', '8.1']
-        symfony: ['^4.4', '^5.0', '^6.0']
-        exclude:
-          - symfony: '^6.0'
-            php: '7.4'
+        experimental: [false]
         include:
-          - symfony: '^4.4'
-            deprecations: 'max[self]=0'
-          - symfony: '^5.0'
-            deprecations: ''
+          - symfony: '^6.0'
+            php: '8.0'
+            experimental: true
+          - symfony: '^6.0'
+            php: '8.1'
+            experimental: true
+
     steps:
 
       - name: Checkout
@@ -45,7 +46,7 @@ jobs:
 
       - name: Install
         run: |
-          sed -ri 's/"symfony\/framework-bundle": "(.+)"/"symfony\/framework-bundle": "'${{ matrix.symfony }}'"/' composer.json;
+          sed -ri 's/"symfony\/(.+)": "(.+)"/"symfony\/\1": "'${{ matrix.symfony }}'"/' composer.json;
           composer update --prefer-dist --no-progress
           composer info
           git checkout composer.json
