@@ -105,13 +105,13 @@ php bin/console debug:config t3g_keycloak
 # Default configuration for extension with alias: "t3g_keycloak"
 t3g_keycloak:
     keycloak:
-        jku_url:              'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs'
-        user_provider_class:  T3G\Bundle\Keycloak\Security\KeyCloakUserProvider
+        jku_url: 'https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs'
+        user_provider_class: T3G\Bundle\Keycloak\Security\KeyCloakUserProvider
         default_roles:
             # Defaults:
             - ROLE_USER
             - ROLE_OAUTH_USER
         role_mapping:
             # Default:
-            typo3.gmbh.member:   ROLE_ADMIN
+            typo3.gmbh.member: ROLE_ADMIN
 ```
