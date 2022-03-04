@@ -14,19 +14,24 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class KeyCloakUser implements UserInterface
 {
-    private string $username;
+    private string $identifier;
     private array $roles;
     private ?string $fullName = null;
     private ?string $email = null;
     private bool $fresh = false;
 
-    public function __construct(string $username, array $roles, ?string $email = null, ?string $fullName = null, bool $fresh = false)
+    public function __construct(string $identifier, array $roles, ?string $email = null, ?string $fullName = null, bool $fresh = false)
     {
-        $this->username = $username;
+        $this->identifier = $identifier;
         $this->roles = $roles;
         $this->email = $email;
         $this->fullName = $fullName;
         $this->fresh = $fresh;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->identifier;
     }
 
     public function getRoles(): array
@@ -46,7 +51,7 @@ class KeyCloakUser implements UserInterface
 
     public function getUsername(): string
     {
-        return $this->username;
+        return $this->getUserIdentifier();
     }
 
     public function eraseCredentials(): void
