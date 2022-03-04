@@ -111,7 +111,13 @@ t3g_keycloak:
             # Defaults:
             - ROLE_USER
             - ROLE_OAUTH_USER
+```
+
+### Role Mapping
+
+```yaml
+t3g_keycloak:
+    keycloak:
         role_mapping:
-            # Default:
-            typo3.gmbh.member: ROLE_ADMIN
+            my-role: ROLE_ADMIN
 ```
