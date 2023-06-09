@@ -24,7 +24,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('keycloak')->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('jku_url')
-                            ->defaultValue('https://login.typo3.com/auth/realms/TYPO3/protocol/openid-connect/certs')
+                            ->defaultValue('https://login.typo3.com/realms/TYPO3/protocol/openid-connect/certs')
                             ->cannotBeEmpty()
                         ->end()
                         ->scalarNode('user_provider_class')
