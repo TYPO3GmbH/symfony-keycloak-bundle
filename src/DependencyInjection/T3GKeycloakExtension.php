@@ -100,7 +100,7 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
                         ]
                     ],
                     'jku_factory' => [
-                        'enabled' => true,
+                        'enabled' => 'test' !== $_SERVER['APP_ENV'], // we don't want to have requests to the login server in test context
                         'client' => 'httplug.client.login_typo3_com',
                         'request_factory' => 'httplug.message_factory'
                     ]
