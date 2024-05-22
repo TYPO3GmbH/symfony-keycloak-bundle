@@ -18,12 +18,12 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class T3GKeycloakExtension extends Extension implements PrependExtensionInterface
 {
-    public function getAlias()
+    public function getAlias(): string
     {
         return 't3g_keycloak';
     }
 
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');

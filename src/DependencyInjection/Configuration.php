@@ -16,7 +16,7 @@ use T3G\Bundle\Keycloak\Security\KeyCloakUserProvider;
 
 class Configuration implements ConfigurationInterface
 {
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('t3g_keycloak');
         $treeBuilder->getRootNode()
