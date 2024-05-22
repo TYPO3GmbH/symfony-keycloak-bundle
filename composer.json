@@ -3,7 +3,7 @@
     "type": "symfony-bundle",
     "description": "Use the TYPO3 Keycloak server for authentication",
     "license": "MIT",
-    "homepage": "http://www.typo3.com",
+    "homepage": "https://www.typo3.com",
     "authors": [
         {
             "name": "Frank Naegler",
@@ -45,7 +45,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "overtrue/phplint": "^3.0 || ^4.0",
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-latest"
     },
     "scripts": {
         "t3g:cgl": [
@@ -61,5 +61,10 @@
             "@t3g:cgl",
             "@t3g:test:php:lint"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     }
 }
