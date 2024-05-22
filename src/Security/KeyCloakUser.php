@@ -74,7 +74,7 @@ class KeyCloakUser implements UserInterface
      */
     public function getDisplayName(): string
     {
-        return $this->fullName ?? $this->username;
+        return $this->getFullName() ?? $this->getUserIdentifier();
     }
 
     public function isFresh(): bool
