@@ -13,6 +13,7 @@ $ composer require t3g/symfony-keycloak-bundle
 
 Update your security.yaml like this
 
+# @TODO: UPDATE
 ```yaml
 # config/packages/security.yaml
 security:

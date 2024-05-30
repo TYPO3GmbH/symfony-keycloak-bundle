@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /*
  * This file is part of the package t3g/symfony-keycloak-bundle.
@@ -10,82 +10,62 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
+use Doctrine\ORM\EntityManagerInterface;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
-use T3G\Bundle\Keycloak\Service\JWTService;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class KeyCloakAuthenticator extends AbstractGuardAuthenticator
+class KeyCloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    protected SessionInterface $session;
+    private $clientRegistry;
+    private $session;
+    private $router;
 
-    protected JWTService $JWTService;
-
-    public function __construct(SessionInterface $session, JWTService $JWTService)
+    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router)
     {
-        $this->session = $session;
-        $this->JWTService = $JWTService;
+        $this->clientRegistry = $clientRegistry;
+        $this->session = $requestStack->getSession();
+        $this->router = $router;
     }
 
-    /**
-     * @param Request $request The request that resulted in an AuthenticationException
-     * @param AuthenticationException $authException The exception that started the authentication process
-     * @return RedirectResponse
-     */
-    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
+    public function supports(Request $request): ?bool
     {
-        return new RedirectResponse('/', Response::HTTP_TEMPORARY_REDIRECT);
+        // continue ONLY if the current ROUTE matches the check ROUTE
+        return $request->attributes->get('_route') === 'oauth_callback';
     }
 
-    public function supports(Request $request): bool
+    public function authenticate(Request $request): Passport
     {
-        return $request->headers->has('X-Auth-Token')
-            && $request->headers->has('X-Auth-Username')
-            && $request->headers->has('X-Auth-Userid');
-    }
+        $client = $this->clientRegistry->getClient('keycloak');
+        $accessToken = $this->fetchAccessToken($client);
 
-    /**
-     * @param Request $request
-     * @return Request
-     */
-    public function getCredentials(Request $request): Request
-    {
-        return $request;
-    }
-
-    /**
-     * @param Request $credentials
-     * @param UserProviderInterface|KeyCloakUserProvider $userProvider
-     * @return KeyCloakUser|null
-     */
-    public function getUser($credentials, UserProviderInterface $userProvider): ?KeyCloakUser
-    {
-        $this->session->set('JWT_TOKEN', $credentials->headers->get('X-Auth-Token'));
-        $roles = $this->getRolesFromToken($credentials->headers->get('X-Auth-Token'));
-        $scopes = $this->getScopesFromToken($credentials->headers->get('X-Auth-Token'));
-
-        return $userProvider->loadUserByIdentifier(
-            $credentials->headers->get('X-Auth-Username'),
-            $roles,
-            $scopes,
-            $this->getEmailFromToken($credentials->headers->get('X-Auth-Token')),
-            $this->getFullNameFromToken($credentials->headers->get('X-Auth-Token')),
-            true
+        return new SelfValidatingPassport(
+            new UserBadge($accessToken->getToken(), function() use ($accessToken, $client) {
+                return $client->fetchUserFromToken($accessToken);
+            })
         );
     }
 
-    /**
-     * @param Request $request
-     * @param AuthenticationException $exception
-     * @return Response|null
-     */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    {
+        // @TODO: make configurable
+        $targetUrl = $this->router->generate('dashboard');
+
+        return new RedirectResponse($targetUrl);
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());
 
@@ -93,70 +73,15 @@ class KeyCloakAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * @param Request $request
-     * @param TokenInterface $token
-     * @param string $providerKey The provider (i.e. firewall) key
-     * @return Response|null
+     * Called when authentication is needed, but it's not sent.
+     * This redirects to the 'login'.
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey): ?Response
+    public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        return null;
-    }
-
-    /**
-     * @param Request $credentials
-     * @param UserInterface $user
-     * @return bool
-     */
-    public function checkCredentials($credentials, UserInterface $user): bool
-    {
-        // Gatekeeper takes care of credential validation
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function supportsRememberMe(): bool
-    {
-        return false;
-    }
-
-    protected function decodeJwtToken(string $token): array
-    {
-        $this->JWTService->verify($token);
-
-        return json_decode($this->JWTService->getPayload(), true, 512, JSON_THROW_ON_ERROR);
-    }
-
-    protected function getScopesFromToken(string $token): array
-    {
-        $roles= [];
-        $scopes = explode(' ', $this->decodeJwtToken($token)['scope']);
-
-        foreach ($scopes as $scope) {
-            $roles[] = 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope));
-        }
-
-        return $roles;
-    }
-
-    protected function getRolesFromToken(string $token): array
-    {
-        return $this->decodeJwtToken($token)['realm_access']['roles'] ?? [];
-    }
-
-    public function getFullNameFromToken(string $token): ?string
-    {
-        $data = $this->decodeJwtToken($token);
-
-        return $data['name'] ?? null;
-    }
-
-    public function getEmailFromToken(string $token): ?string
-    {
-        $data = $this->decodeJwtToken($token);
-
-        return $data['email'] ?? null;
+        // @TODO: make configurable
+        return new RedirectResponse(
+            $this->router->generate('login'),
+            Response::HTTP_TEMPORARY_REDIRECT
+        );
     }
 }
