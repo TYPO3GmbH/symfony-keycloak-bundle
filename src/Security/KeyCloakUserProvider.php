@@ -10,15 +10,16 @@ declare(strict_types = 1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
+use Drenso\OidcBundle\Model\OidcUserData;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Drenso\OidcBundle\Security\UserProvider\OidcUserProviderInterface;
 
-class KeyCloakUserProvider implements UserProviderInterface
+class KeyCloakUserProvider implements OidcUserProviderInterface
 {
     private array $roleMapping;
-
     private array $defaultRoles;
+    private array $userRoles = [];
 
     public function __construct(array $roleMapping, array $defaultRoles = ['ROLE_USER', 'ROLE_OAUTH_USER'])
     {
@@ -45,7 +46,7 @@ class KeyCloakUserProvider implements UserProviderInterface
     ): KeyCloakUser {
         $roles = array_intersect_key($this->roleMapping, array_flip(array_map(static function ($v) {
             return str_replace('-', '_', $v);
-        }, $keycloakGroups)));
+        }, $this->userRoles)));
         $roles = array_merge($roles, $scopes, $this->defaultRoles);
 
         return new KeyCloakUser($identifier, array_values($roles), $email, $fullName, $fresh);
@@ -91,5 +92,16 @@ class KeyCloakUserProvider implements UserProviderInterface
     public function supportsClass($class): bool
     {
         return KeyCloakUser::class === $class;
+    }
+
+    public function ensureUserExists(string $userIdentifier, OidcUserData $userData)
+    {
+        // @TODO: store it in the session?
+        $this->userRoles = $userData->getUserDataArray('realm_access')['roles'];
+    }
+
+    public function loadOidcUser(string $userIdentifier): UserInterface
+    {
+        return $this->loadUserByIdentifier($userIdentifier);
     }
 }
