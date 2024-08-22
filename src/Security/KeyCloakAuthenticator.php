@@ -10,17 +10,19 @@ declare(strict_types = 1);
 
 namespace T3G\Bundle\Keycloak\Security;
 
-use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
-use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
+use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -28,31 +30,46 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class KeyCloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    private $clientRegistry;
-    private $session;
-    private $router;
+    public const SESSION_KEYCLOAK_ACCESS_TOKEN = 'keycloak_access_token';
+    private OAuth2ClientInterface $client;
+    private SessionInterface $session;
+    private RouterInterface $router;
+    private UserProviderInterface $userProvider;
 
-    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router)
+    /**
+     * @param KeyCloakUserProvider $userProvider
+     */
+    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider)
     {
-        $this->clientRegistry = $clientRegistry;
+        $this->client = $clientRegistry->getClient('keycloak');
         $this->session = $requestStack->getSession();
         $this->router = $router;
+        $this->userProvider = $userProvider;
     }
 
     public function supports(Request $request): ?bool
     {
-        // continue ONLY if the current ROUTE matches the check ROUTE
-        return $request->attributes->get('_route') === 'oauth_callback';
+        // @TODO: make configurable
+         return 'oauth_callback' === $request->attributes->get('_route');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('keycloak');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessToken($this->client);
+        /** @var array{realm_access: ?array{roles: ?string[]}, name?: ?string, preferred_username: string, email?: ?string} $userData */
+        $userData = $this->client->fetchUserFromToken($accessToken)?->toArray();
+        $this->session->set(self::SESSION_KEYCLOAK_ACCESS_TOKEN, $accessToken);
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function() use ($accessToken, $client) {
-                return $client->fetchUserFromToken($accessToken);
+            new UserBadge($userData['preferred_username'], function() use ($accessToken, $userData) {
+                return $this->userProvider->loadUserByIdentifier(
+                    $userData['preferred_username'],
+                    $userData['realm_access']['roles'] ?? [],
+                    $this->getScopesFromToken($accessToken),
+                    $userData['email'] ?? null,
+                    $userData['name'] ?? null,
+                    true
+                );
             })
         );
     }
@@ -60,16 +77,19 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         // @TODO: make configurable
-        $targetUrl = $this->router->generate('dashboard');
-
-        return new RedirectResponse($targetUrl);
+        return new RedirectResponse(
+            $this->router->generate('dashboard'),
+            Response::HTTP_TEMPORARY_REDIRECT
+        );
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
-
-        return new Response($message, Response::HTTP_FORBIDDEN);
+        // @TODO: make configurable
+        return new RedirectResponse(
+            $this->router->generate('login'),
+            Response::HTTP_TEMPORARY_REDIRECT
+        );
     }
 
     /**
@@ -83,5 +103,17 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
             $this->router->generate('login'),
             Response::HTTP_TEMPORARY_REDIRECT
         );
+    }
+
+    private function getScopesFromToken(AccessToken $token): array
+    {
+        $roles = [];
+        $scopes = explode(' ', $token->getValues()['scope'] ?? '');
+
+        foreach ($scopes as $scope) {
+            $roles[] = 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope));
+        }
+
+        return $roles;
     }
 }

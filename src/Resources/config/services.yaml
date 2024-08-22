@@ -15,3 +15,6 @@ services:
   T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator:
     class: T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
     public: true
+
+  T3G\Bundle\Keycloak\EventSubscriber\RequestSubscriber:
+    tags: [ kernel.event_subscriber ]
