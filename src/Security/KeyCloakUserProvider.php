@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /*
  * This file is part of the package t3g/symfony-keycloak-bundle.
@@ -18,7 +18,6 @@ class KeyCloakUserProvider implements UserProviderInterface
 {
     private array $roleMapping;
     private array $defaultRoles;
-    private array $userRoles = [];
 
     public function __construct(array $roleMapping, array $defaultRoles = ['ROLE_USER', 'ROLE_OAUTH_USER'])
     {
@@ -45,7 +44,7 @@ class KeyCloakUserProvider implements UserProviderInterface
     ): KeyCloakUser {
         $roles = array_intersect_key($this->roleMapping, array_flip(array_map(static function ($v) {
             return str_replace('-', '_', $v);
-        }, $this->userRoles)));
+        }, $keycloakGroups)));
         $roles = array_merge($roles, $scopes, $this->defaultRoles);
 
         return new KeyCloakUser($identifier, array_values($roles), $email, $fullName, $fresh);
