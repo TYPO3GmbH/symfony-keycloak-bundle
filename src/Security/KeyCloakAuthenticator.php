@@ -50,7 +50,7 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     public function supports(Request $request): ?bool
     {
         // @TODO: make configurable
-         return 'oauth_callback' === $request->attributes->get('_route');
+        return 'oauth_callback' === $request->attributes->get('_route');
     }
 
     public function authenticate(Request $request): Passport

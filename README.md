@@ -13,22 +13,21 @@ $ composer require t3g/symfony-keycloak-bundle
 
 Update your security.yaml like this
 
-# @TODO: UPDATE
 ```yaml
 # config/packages/security.yaml
 security:
+    enable_authenticator_manager: true
     providers:
         keycloak:
             id: keycloak.typo3.com.user.provider
     firewalls:
         main:
-            anonymous: true
+            provider: keycloak
             logout:
                 path: /logout
                 target: home
-            guard:
-                authenticators:
-                    - T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
+            custom_authenticators:
+                - T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
 ```
 
 ```yaml
@@ -69,23 +68,32 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class HomeController extends AbstractController
 {
     /**
      * Link to this controller to start the "connect" process.
-     *
-     * @Route("/login", name="login")
-     * @param ClientRegistry $clientRegistry
-     * @return RedirectResponse
      */
+    #[Route(path: '/login', name: 'login', methods: ['GET'])]
     public function login(ClientRegistry $clientRegistry): RedirectResponse
     {
         return $clientRegistry
             ->getClient('keycloak')
             ->redirect([
-                'profile roles email', // the scopes you want to access
-            ], []);
+                'openid', 'profile', 'roles', 'email', // the scopes you want to access
+            ]);
+    }
+
+    /**
+     * A callback route is required to authenticate the user. 
+     */
+    #[IsGranted('ROLE_USER')]
+    #[Route(path: '/oauth/callback', name: 'oauth_callback', methods: ['GET'])]
+    public function checkLogin(): RedirectResponse
+    {
+        // fallback in case the authenticator does not redirect
+        return $this->redirectToRoute('dashboard');
     }
 }
 ```
