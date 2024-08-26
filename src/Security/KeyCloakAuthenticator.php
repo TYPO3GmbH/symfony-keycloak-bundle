@@ -61,7 +61,7 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
         $this->session->set(self::SESSION_KEYCLOAK_ACCESS_TOKEN, $accessToken);
 
         return new SelfValidatingPassport(
-            new UserBadge($userData['preferred_username'], function() use ($accessToken, $userData) {
+            new UserBadge($userData['preferred_username'], function () use ($accessToken, $userData) {
                 return $this->userProvider->loadUserByIdentifier(
                     $userData['preferred_username'],
                     $userData['realm_access']['roles'] ?? [],

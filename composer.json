@@ -16,18 +16,18 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.1",
         "ext-json": "*",
         "ext-gmp": "*",
         "nyholm/psr7": "^1.2",
         "php-http/cache-plugin": "^1.7",
         "php-http/curl-client": "^2.1",
         "php-http/httplug-bundle": "^1.17",
-        "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.4",
-        "symfony/framework-bundle": "^4.4 || ^5.4 || ^6.4",
-        "symfony/security-bundle": "^4.4 || ^5.4 || ^6.4",
-        "symfony/security-core": "^4.4 || ^5.4 || ^6.4",
-        "symfony/security-http": "^4.4 || ^5.4 || ^6.4"
+        "symfony/dependency-injection": "^6.4",
+        "symfony/framework-bundle": "^6.4",
+        "symfony/security-bundle": "^6.4",
+        "symfony/security-core": "^6.4",
+        "symfony/security-http": "^6.4"
     },
     "autoload": {
         "psr-4": {
