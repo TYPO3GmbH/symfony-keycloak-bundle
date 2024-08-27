@@ -78,6 +78,10 @@ class HomeController extends AbstractController
     #[Route(path: '/login', name: 'login', methods: ['GET'])]
     public function login(ClientRegistry $clientRegistry): RedirectResponse
     {
+        if (null !== $this->getUser()) {
+            return $this->redirectToRoute('dashboard');
+        }
+
         return $clientRegistry
             ->getClient('keycloak')
             ->redirect([
@@ -86,7 +90,7 @@ class HomeController extends AbstractController
     }
 
     /**
-     * A callback route is required to authenticate the user. 
+     * This route must match the authentication route in your bundle configuration.
      */
     #[IsGranted('ROLE_USER')]
     #[Route(path: '/oauth/callback', name: 'oauth_callback', methods: ['GET'])]
@@ -120,6 +124,11 @@ t3g_keycloak:
             # Defaults:
             - ROLE_USER
             - ROLE_OAUTH_USER
+    routes:
+        # redirect_route passed to keycloak
+        authentication: oauth_callback
+        # route to redirect to after successful authentication
+        success: dashboard
 ```
 
 ### Role Mapping

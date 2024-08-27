@@ -38,6 +38,16 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('routes')->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('authentication')
+                            ->defaultValue(null)
+                        ->end()
+                        ->scalarNode('success')
+                            ->defaultValue(null)
+                            ->end()
+                        ->end()
+                ->end()
             ->end()
         ;
 

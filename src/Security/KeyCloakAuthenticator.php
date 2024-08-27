@@ -35,22 +35,25 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     private SessionInterface $session;
     private RouterInterface $router;
     private UserProviderInterface $userProvider;
+    private ?string $routeAuthentication;
+    private ?string $routeSuccess;
 
     /**
      * @param KeyCloakUserProvider $userProvider
      */
-    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider)
+    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider, ?string $routeAuthentication = null, ?string $routeSuccess = null)
     {
         $this->client = $clientRegistry->getClient('keycloak');
         $this->session = $requestStack->getSession();
         $this->router = $router;
         $this->userProvider = $userProvider;
+        $this->routeAuthentication = $routeAuthentication;
+        $this->routeSuccess = $routeSuccess;
     }
 
     public function supports(Request $request): ?bool
     {
-        // @TODO: make configurable
-        return 'oauth_callback' === $request->attributes->get('_route');
+        return $this->routeAuthentication === $request->attributes->get('_route');
     }
 
     public function authenticate(Request $request): Passport
@@ -76,20 +79,21 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        // @TODO: make configurable
+        if (null === $this->routeSuccess) {
+            return null;
+        }
+
         return new RedirectResponse(
-            $this->router->generate('dashboard'),
+            $this->router->generate($this->routeSuccess),
             Response::HTTP_TEMPORARY_REDIRECT
         );
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        // @TODO: make configurable
-        return new RedirectResponse(
-            $this->router->generate('login'),
-            Response::HTTP_TEMPORARY_REDIRECT
-        );
+        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
+
+        return new Response($message, Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -98,11 +102,7 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
      */
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        // @TODO: make configurable
-        return new RedirectResponse(
-            $this->router->generate('login'),
-            Response::HTTP_TEMPORARY_REDIRECT
-        );
+        return new RedirectResponse('/', Response::HTTP_TEMPORARY_REDIRECT);
     }
 
     private function getScopesFromToken(AccessToken $token): array

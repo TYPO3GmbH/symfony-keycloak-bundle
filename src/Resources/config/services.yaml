@@ -15,6 +15,9 @@ services:
   T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator:
     class: T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
     public: true
+    arguments:
+      $routeAuthentication: '%t3g_keycloak.routes.authentication%'
+      $routeSuccess: '%t3g_keycloak.routes.success%'
 
   T3G\Bundle\Keycloak\EventSubscriber\RequestSubscriber:
     tags: [ kernel.event_subscriber ]
