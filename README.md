@@ -34,6 +34,9 @@ security:
 # config/routes.yaml
 logout:
   path: /logout
+
+login:
+    alias: t3g_keycloak_login
 ```
 
 ## Step 3: Enable the Bundle
@@ -48,58 +51,11 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    Jose\Bundle\JoseFramework\JoseFrameworkBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
+    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class => ['all' => true],
     Http\HttplugBundle\HttplugBundle::class => ['all' => true],
     T3G\Bundle\Keycloak\T3GKeycloakBundle::class => ['all' => true],
 ];
-```
-
-## Step 5: Create a login controller
-
-In order to log in, a simple login controller will suffice:
-
-```php
-<?php
-
-namespace App\Controller;
-
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-
-class HomeController extends AbstractController
-{
-    /**
-     * Link to this controller to start the "connect" process.
-     */
-    #[Route(path: '/login', name: 'login', methods: ['GET'])]
-    public function login(ClientRegistry $clientRegistry): RedirectResponse
-    {
-        if (null !== $this->getUser()) {
-            return $this->redirectToRoute('dashboard');
-        }
-
-        return $clientRegistry
-            ->getClient('keycloak')
-            ->redirect([
-                'openid', 'profile', 'roles', 'email', // the scopes you want to access
-            ]);
-    }
-
-    /**
-     * This route must match the authentication route in your bundle configuration.
-     */
-    #[IsGranted('ROLE_USER')]
-    #[Route(path: '/oauth/callback', name: 'oauth_callback', methods: ['GET'])]
-    public function checkLogin(): RedirectResponse
-    {
-        // fallback in case the authenticator does not redirect
-        return $this->redirectToRoute('dashboard');
-    }
-}
 ```
 
 # Configuration
@@ -118,17 +74,12 @@ php bin/console debug:config t3g_keycloak
 # Default configuration for extension with alias: "t3g_keycloak"
 t3g_keycloak:
     keycloak:
-        jku_url: 'https://login.typo3.com/realms/TYPO3/protocol/openid-connect/certs'
         user_provider_class: T3G\Bundle\Keycloak\Security\KeyCloakUserProvider
         default_roles:
             # Defaults:
             - ROLE_USER
             - ROLE_OAUTH_USER
-    routes:
-        # redirect_route passed to keycloak
-        authentication: oauth_callback
-        # route to redirect to after successful authentication
-        success: dashboard
+        clientId: '%env(KEYCLOAK_CLIENT_ID)%'
 ```
 
 ### Role Mapping
@@ -138,4 +89,14 @@ t3g_keycloak:
     keycloak:
         role_mapping:
             my-role: ROLE_ADMIN
+```
+
+### Routes
+```yaml
+t3g_keycloak:
+    routes:
+        # route to redirect to after successful authentication
+        success: home
+        # redirect_route passed to keycloak
+        authentication: t3g_keycloak_oauthCallback
 ```

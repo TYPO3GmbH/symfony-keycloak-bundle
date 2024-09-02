@@ -12,6 +12,15 @@ services:
       $roleMapping: '%t3g_keycloak.keycloak.role_mapping%'
       $defaultRoles: '%t3g_keycloak.keycloak.default_roles%'
 
+  keycloak.typo3.com.login_controller:
+    class: T3G\Bundle\Keycloak\Controller\LoginController
+
+  T3G\Bundle\Keycloak\Service\RedirectService:
+    class: T3G\Bundle\Keycloak\Service\RedirectService
+    public: true
+    arguments:
+      $clientId: '%t3g_keycloak.keycloak.clientId%'
+
   T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator:
     class: T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
     public: true

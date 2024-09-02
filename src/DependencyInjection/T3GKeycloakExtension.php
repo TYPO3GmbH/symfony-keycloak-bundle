@@ -37,11 +37,25 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
         $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
+        $container->setParameter('t3g_keycloak.keycloak.clientId', $config['keycloak']['clientId']);
         $container->setParameter('t3g_keycloak.routes.authentication', $config['routes']['authentication']);
         $container->setParameter('t3g_keycloak.routes.success', $config['routes']['success']);
 
         if ($container->hasExtension($this->getAlias())) {
             $container->prependExtensionConfig($this->getAlias(), ['keycloak' => [], 'routes' => []]);
+        }
+
+        if ($container->hasExtension('knpu_oauth2_client')) {
+            $container->prependExtensionConfig(
+                'knpu_oauth2_client',
+                [
+                    'clients' => [
+                        'keycloak' => [
+                            'redirect_route' => '%t3g_keycloak.routes.authentication%',
+                        ],
+                    ],
+                ]
+            );
         }
 
         if ($container->hasExtension('httplug')) {

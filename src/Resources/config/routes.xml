@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        http://symfony.com/schema/routing/routing-1.0.xsd">
+    <route id="t3g_keycloak_login" controller="keycloak.typo3.com.login_controller::login" path="/login"></route>
+    <route id="t3g_keycloak_oauthCallback" controller="keycloak.typo3.com.login_controller::oauthCallback" path="/oauth/callback"></route>
+    <route id="t3g_keycloak_logout" controller="keycloak.typo3.com.login_controller::oauthLogout" path="/oauth/logout"></route>
+</routes>
