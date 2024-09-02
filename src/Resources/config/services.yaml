@@ -25,6 +25,7 @@ services:
     class: T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
     public: true
     arguments:
+      $userProvider: '@keycloak.typo3.com.user.provider'
       $routeAuthentication: '%t3g_keycloak.routes.authentication%'
       $routeSuccess: '%t3g_keycloak.routes.success%'
 
