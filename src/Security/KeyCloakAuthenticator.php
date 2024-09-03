@@ -27,6 +27,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use T3G\Bundle\Keycloak\Service\TokenService;
 
 class KeyCloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
@@ -35,18 +36,20 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     private SessionInterface $session;
     private RouterInterface $router;
     private UserProviderInterface $userProvider;
+    private TokenService $tokenService;
     private ?string $routeAuthentication;
     private ?string $routeSuccess;
 
     /**
      * @param KeyCloakUserProvider $userProvider
      */
-    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider, ?string $routeAuthentication = null, ?string $routeSuccess = null)
+    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider, TokenService $tokenService, ?string $routeAuthentication = null, ?string $routeSuccess = null)
     {
         $this->client = $clientRegistry->getClient('keycloak');
         $this->session = $requestStack->getSession();
         $this->router = $router;
         $this->userProvider = $userProvider;
+        $this->tokenService = $tokenService;
         $this->routeAuthentication = $routeAuthentication;
         $this->routeSuccess = $routeSuccess;
     }
@@ -59,16 +62,15 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     public function authenticate(Request $request): Passport
     {
         $accessToken = $this->fetchAccessToken($this->client);
-        /** @var array{realm_access: ?array{roles: ?string[]}, name?: ?string, preferred_username: string, email?: ?string} $userData */
-        $userData = $this->client->fetchUserFromToken($accessToken)?->toArray();
         $this->session->set(self::SESSION_KEYCLOAK_ACCESS_TOKEN, $accessToken);
+        $userData = $this->tokenService->fetchUserData();
 
         return new SelfValidatingPassport(
             new UserBadge($userData['preferred_username'], function () use ($accessToken, $userData) {
                 return $this->userProvider->loadUserByIdentifier(
                     $userData['preferred_username'],
                     $userData['realm_access']['roles'] ?? [],
-                    $this->getScopesFromToken($accessToken),
+                    $this->tokenService->getScopes(),
                     $userData['email'] ?? null,
                     $userData['name'] ?? null,
                     true
@@ -103,17 +105,5 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
         return new RedirectResponse('/', Response::HTTP_TEMPORARY_REDIRECT);
-    }
-
-    private function getScopesFromToken(AccessToken $token): array
-    {
-        $roles = [];
-        $scopes = explode(' ', $token->getValues()['scope'] ?? '');
-
-        foreach ($scopes as $scope) {
-            $roles[] = 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope));
-        }
-
-        return $roles;
     }
 }
