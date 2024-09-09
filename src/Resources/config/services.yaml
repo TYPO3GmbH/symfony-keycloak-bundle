@@ -9,18 +9,30 @@ services:
   keycloak.typo3.com.user.provider:
     class: '%t3g_keycloak.keycloak.user_provider_class%'
     arguments:
+      $tokenService: '@keycloak.typo3.com.token_service'
       $roleMapping: '%t3g_keycloak.keycloak.role_mapping%'
       $defaultRoles: '%t3g_keycloak.keycloak.default_roles%'
 
-  keycloak.typo3.com.jwt.service:
-    class: T3G\Bundle\Keycloak\Service\JWTService
+  keycloak.typo3.com.login_controller:
+    class: T3G\Bundle\Keycloak\Controller\LoginController
+
+  keycloak.typo3.com.token_service:
+    class: T3G\Bundle\Keycloak\Service\TokenService
+
+  T3G\Bundle\Keycloak\Service\RedirectService:
+    class: T3G\Bundle\Keycloak\Service\RedirectService
     public: true
     arguments:
-      $JWSVerifier: '@jose.jws_verifier.login_typo3_com'
-      $JWKSet: '@jose.key_set.login_typo3_com'
+      $clientId: '%t3g_keycloak.keycloak.clientId%'
 
   T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator:
     class: T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator
     public: true
     arguments:
-      $JWTService: '@keycloak.typo3.com.jwt.service'
+      $tokenService: '@keycloak.typo3.com.token_service'
+      $userProvider: '@keycloak.typo3.com.user.provider'
+      $routeAuthentication: '%t3g_keycloak.routes.authentication%'
+      $routeSuccess: '%t3g_keycloak.routes.success%'
+
+  T3G\Bundle\Keycloak\EventSubscriber\RequestSubscriber:
+    tags: [ kernel.event_subscriber ]

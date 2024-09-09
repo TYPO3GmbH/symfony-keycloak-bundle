@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /*
  * This file is part of the package t3g/symfony-keycloak-bundle.
@@ -13,15 +13,17 @@ namespace T3G\Bundle\Keycloak\Security;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use T3G\Bundle\Keycloak\Service\TokenService;
 
 class KeyCloakUserProvider implements UserProviderInterface
 {
+    private TokenService $tokenService;
     private array $roleMapping;
-
     private array $defaultRoles;
 
-    public function __construct(array $roleMapping, array $defaultRoles = ['ROLE_USER', 'ROLE_OAUTH_USER'])
+    public function __construct(TokenService $tokenService, array $roleMapping, array $defaultRoles = ['ROLE_USER', 'ROLE_OAUTH_USER'])
     {
+        $this->tokenService = $tokenService;
         $this->roleMapping = $roleMapping;
         $this->defaultRoles = $defaultRoles;
     }
@@ -81,7 +83,16 @@ class KeyCloakUserProvider implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
-        return new KeyCloakUser($user->getUsername(), $user->getRoles(), $user->getEmail(), $user->getFullName(), false);
+        $userData = $this->tokenService->fetchUserData();
+
+        return $this->loadUserByIdentifier(
+            $userData['preferred_username'],
+            $userData['realm_access']['roles'] ?? [],
+            $this->tokenService->getScopes(),
+            $userData['email'] ?? null,
+            $userData['name'] ?? null,
+            true
+        );
     }
 
     /**

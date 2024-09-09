@@ -34,13 +34,28 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
         $configs = $container->getExtensionConfig($this->getAlias());
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        $container->setParameter('t3g_keycloak.keycloak.jku_url', $config['keycloak']['jku_url']);
         $container->setParameter('t3g_keycloak.keycloak.user_provider_class', $config['keycloak']['user_provider_class']);
         $container->setParameter('t3g_keycloak.keycloak.default_roles', $config['keycloak']['default_roles']);
         $container->setParameter('t3g_keycloak.keycloak.role_mapping', $config['keycloak']['role_mapping']);
+        $container->setParameter('t3g_keycloak.keycloak.clientId', $config['keycloak']['clientId']);
+        $container->setParameter('t3g_keycloak.routes.authentication', $config['routes']['authentication']);
+        $container->setParameter('t3g_keycloak.routes.success', $config['routes']['success']);
 
         if ($container->hasExtension($this->getAlias())) {
-            $container->prependExtensionConfig($this->getAlias(), ['keycloak' => []]);
+            $container->prependExtensionConfig($this->getAlias(), ['keycloak' => [], 'routes' => []]);
+        }
+
+        if ($container->hasExtension('knpu_oauth2_client')) {
+            $container->prependExtensionConfig(
+                'knpu_oauth2_client',
+                [
+                    'clients' => [
+                        'keycloak' => [
+                            'redirect_route' => '%t3g_keycloak.routes.authentication%',
+                        ],
+                    ],
+                ]
+            );
         }
 
         if ($container->hasExtension('httplug')) {
@@ -74,35 +89,6 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
                     'classes' => [
                         'message_factory' => 'Nyholm\Psr7\Factory\Psr17Factory',
                         'stream_factory' => 'Nyholm\Psr7\Factory\Psr17Factory',
-                    ]
-                ]
-            );
-        }
-
-        if ($container->hasExtension('jose')) {
-            $container->prependExtensionConfig(
-                'jose',
-                [
-                    'key_sets' => [
-                        'login_typo3_com' => [
-                            'jku' => [
-                                'url' => '%t3g_keycloak.keycloak.jku_url%',
-                                'is_public' => true
-                            ]
-                        ]
-                    ],
-                    'jws' => [
-                        'verifiers' => [
-                            'login_typo3_com' => [
-                                'signature_algorithms' => ['HS256', 'RS256'],
-                                'is_public' => true
-                            ]
-                        ]
-                    ],
-                    'jku_factory' => [
-                        'enabled' => 'test' !== $_SERVER['APP_ENV'], // we don't want to have requests to the login server in test context
-                        'client' => 'httplug.client.login_typo3_com',
-                        'request_factory' => 'httplug.message_factory'
                     ]
                 ]
             );
