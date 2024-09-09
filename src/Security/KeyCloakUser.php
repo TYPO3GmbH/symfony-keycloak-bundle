@@ -16,9 +16,9 @@ class KeyCloakUser implements UserInterface
 {
     private string $identifier;
     private array $roles;
-    private ?string $fullName = null;
-    private ?string $email = null;
-    private bool $fresh = false;
+    private ?string $fullName;
+    private ?string $email;
+    private bool $fresh;
 
     public function __construct(string $identifier, array $roles, ?string $email = null, ?string $fullName = null, bool $fresh = false)
     {
