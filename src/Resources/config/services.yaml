@@ -9,7 +9,6 @@ services:
   keycloak.typo3.com.user.provider:
     class: '%t3g_keycloak.keycloak.user_provider_class%'
     arguments:
-      $tokenService: '@keycloak.typo3.com.token_service'
       $roleMapping: '%t3g_keycloak.keycloak.role_mapping%'
       $defaultRoles: '%t3g_keycloak.keycloak.default_roles%'
 
