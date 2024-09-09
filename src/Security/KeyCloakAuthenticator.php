@@ -65,16 +65,14 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
         $userData = $this->tokenService->fetchUserData();
 
         return new SelfValidatingPassport(
-            new UserBadge($userData['preferred_username'], function () use ($accessToken, $userData) {
-                return $this->userProvider->loadUserByIdentifier(
-                    $userData['preferred_username'],
-                    $userData['realm_access']['roles'] ?? [],
-                    $this->tokenService->getScopes(),
-                    $userData['email'] ?? null,
-                    $userData['name'] ?? null,
-                    true
-                );
-            })
+            new UserBadge($userData['preferred_username'], fn () => $this->userProvider->loadUserByIdentifier(
+                $userData['preferred_username'],
+                $userData['realm_access']['roles'] ?? [],
+                $this->tokenService->getScopes(),
+                $userData['email'] ?? null,
+                $userData['name'] ?? null,
+                true
+            ))
         );
     }
 

@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 /*
  * This file is part of the package t3g/symfony-keycloak-bundle.
@@ -43,20 +44,14 @@ class TokenService
 
     public function getScopes(): array
     {
-        $roles = [];
         $accessToken = $this->getAccessTokenFromSession();
-
-        if (null !== $accessToken) {
-            return $roles;
+        if (null === $accessToken) {
+            return [];
         }
 
         $scopes = explode(' ', $accessToken->getValues()['scope'] ?? '');
 
-        foreach ($scopes as $scope) {
-            $roles[] = 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope));
-        }
-
-        return $roles;
+        return array_map(static fn (string $scope) => 'ROLE_SCOPE_' . strtoupper(str_replace('.', '_', $scope)), $scopes);
     }
 
     public function getAccessTokenFromSession(): ?AccessToken
