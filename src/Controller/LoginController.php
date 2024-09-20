@@ -28,7 +28,7 @@ class LoginController extends AbstractController
             return $this->redirectToRoute($this->getParameter('t3g_keycloak.routes.success'));
         }
 
-        return $this->redirectService->generateLoginRedirectResponse(['openid', 'profile', 'roles', 'email']);
+        return $this->redirectService->generateLoginRedirectResponse();
     }
 
     public function oauthCallback(): RedirectResponse

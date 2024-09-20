@@ -26,6 +26,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use T3G\Bundle\Keycloak\Service\RedirectService;
 use T3G\Bundle\Keycloak\Service\TokenService;
 
 class KeyCloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
@@ -36,19 +37,21 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     private RouterInterface $router;
     private UserProviderInterface $userProvider;
     private TokenService $tokenService;
+    private RedirectService $redirectService;
     private ?string $routeAuthentication;
     private ?string $routeSuccess;
 
     /**
      * @param KeyCloakUserProvider $userProvider
      */
-    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider, TokenService $tokenService, ?string $routeAuthentication = null, ?string $routeSuccess = null)
+    public function __construct(ClientRegistry $clientRegistry, RequestStack $requestStack, RouterInterface $router, UserProviderInterface $userProvider, TokenService $tokenService, RedirectService $redirectService, ?string $routeAuthentication = null, ?string $routeSuccess = null)
     {
         $this->client = $clientRegistry->getClient('keycloak');
         $this->session = $requestStack->getSession();
         $this->router = $router;
         $this->userProvider = $userProvider;
         $this->tokenService = $tokenService;
+        $this->redirectService = $redirectService;
         $this->routeAuthentication = $routeAuthentication;
         $this->routeSuccess = $routeSuccess;
     }
@@ -82,8 +85,13 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
             return null;
         }
 
+        $redirectUrl = $this->getPreviousUrl($request, $firewallName);
+        if (null === $redirectUrl || '' === $redirectUrl) {
+            $redirectUrl = $this->router->generate($this->routeSuccess);
+        }
+
         return new RedirectResponse(
-            $this->router->generate($this->routeSuccess),
+            $redirectUrl,
             Response::HTTP_TEMPORARY_REDIRECT
         );
     }
@@ -101,6 +109,6 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
      */
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        return new RedirectResponse('/', Response::HTTP_TEMPORARY_REDIRECT);
+        return $this->redirectService->generateLoginRedirectResponse();
     }
 }

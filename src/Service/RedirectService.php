@@ -20,6 +20,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 class RedirectService
 {
+    public const DEFAULT_SCOPES = ['openid', 'profile', 'roles', 'email'];
     private ClientRegistry $clientRegistry;
     private RouterInterface $router;
     private string $clientId;
@@ -34,7 +35,7 @@ class RedirectService
     /**
      * @param string[] $scopes
      */
-    public function generateLoginRedirectResponse(array $scopes): RedirectResponse
+    public function generateLoginRedirectResponse(array $scopes = self::DEFAULT_SCOPES): RedirectResponse
     {
         /** @var OAuth2Client $client */
         $client = $this->clientRegistry->getClient('keycloak');
