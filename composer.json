@@ -29,7 +29,8 @@
         "symfony/framework-bundle": "^5.4 || ^6.4",
         "symfony/security-bundle": "^5.4 || ^6.4",
         "symfony/security-core": "^5.4 || ^6.4",
-        "symfony/security-http": "^5.4 || ^6.4"
+        "symfony/security-http": "^5.4 || ^6.4",
+        "symfony/validator": "^5.4 || ^6.4"
     },
     "autoload": {
         "psr-4": {
