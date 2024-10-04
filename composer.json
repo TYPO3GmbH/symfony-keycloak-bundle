@@ -45,8 +45,8 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "overtrue/phplint": "^3.0 || ^4.0",
-        "roave/security-advisories": "dev-latest",
-        "phpunit/phpunit": "^10.5"
+        "phpunit/phpunit": "^10.5",
+        "roave/security-advisories": "dev-latest"
     },
     "scripts": {
         "t3g:cgl": [
@@ -70,6 +70,7 @@
     "config": {
         "allow-plugins": {
             "php-http/discovery": true
-        }
+        },
+        "sort-packages": true
     }
 }
