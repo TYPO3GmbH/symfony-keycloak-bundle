@@ -37,10 +37,16 @@
             "T3G\\Bundle\\Keycloak\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "T3G\\Bundle\\Keycloak\\Tests\\": "tests/"
+        }
+    },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "overtrue/phplint": "^3.0 || ^4.0",
-        "roave/security-advisories": "dev-latest"
+        "roave/security-advisories": "dev-latest",
+        "phpunit/phpunit": "^10.5"
     },
     "scripts": {
         "t3g:cgl": [
@@ -52,8 +58,12 @@
         "t3g:test:php:lint": [
             "phplint"
         ],
+        "t3g:test:php": [
+            "./vendor/bin/phpunit -c build/phpunit.xml.dist"
+        ],
         "t3g:test": [
             "@t3g:cgl",
+            "@t3g:test:php",
             "@t3g:test:php:lint"
         ]
     },
