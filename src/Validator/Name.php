@@ -16,6 +16,6 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute]
 class Name extends Constraint
 {
-    public const PATTERN = '/[<>&"[%!#?§;*~=|()^{}\f\n\r\t\v\x00-\x1F\x7F]/';
-    public string $message = 'The value {{ value }} is not a valid name';
+    public const PATTERN = '/[<>&"[\]%!#?§;*~=|()^{}\f\n\r\t\v\x00-\x1F\x7F]/';
+    public string $message = 'The value {{ value }} is not a valid name.';
 }
