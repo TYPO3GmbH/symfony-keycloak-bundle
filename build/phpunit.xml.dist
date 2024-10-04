@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" backupGlobals="false" colors="true" bootstrap="../tests/bootstrap.php" stopOnError="false" stopOnFailure="false" cacheDirectory=".phpunit.cache">
+  <coverage/>
+  <php>
+    <ini name="error_reporting" value="16383"/>
+    <server name="APP_ENV" value="test" force="true"/>
+    <server name="SHELL_VERBOSITY" value="-1"/>
+  </php>
+  <testsuites>
+    <testsuite name="Project Test Suite">
+      <directory>../tests</directory>
+    </testsuite>
+  </testsuites>
+  <source>
+    <include>
+      <directory suffix=".php">../src</directory>
+    </include>
+  </source>
+</phpunit>

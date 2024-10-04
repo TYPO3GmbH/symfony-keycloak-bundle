@@ -29,16 +29,23 @@
         "symfony/framework-bundle": "^5.4 || ^6.4",
         "symfony/security-bundle": "^5.4 || ^6.4",
         "symfony/security-core": "^5.4 || ^6.4",
-        "symfony/security-http": "^5.4 || ^6.4"
+        "symfony/security-http": "^5.4 || ^6.4",
+        "symfony/validator": "^5.4 || ^6.4"
     },
     "autoload": {
         "psr-4": {
             "T3G\\Bundle\\Keycloak\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "T3G\\Bundle\\Keycloak\\Tests\\": "tests/"
+        }
+    },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "overtrue/phplint": "^3.0 || ^4.0",
+        "phpunit/phpunit": "^10.5",
         "roave/security-advisories": "dev-latest"
     },
     "scripts": {
@@ -51,14 +58,19 @@
         "t3g:test:php:lint": [
             "phplint"
         ],
+        "t3g:test:php": [
+            "./vendor/bin/phpunit -c build/phpunit.xml.dist"
+        ],
         "t3g:test": [
             "@t3g:cgl",
+            "@t3g:test:php",
             "@t3g:test:php:lint"
         ]
     },
     "config": {
         "allow-plugins": {
             "php-http/discovery": true
-        }
+        },
+        "sort-packages": true
     }
 }
