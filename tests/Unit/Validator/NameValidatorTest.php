@@ -77,6 +77,7 @@ class NameValidatorTest extends ConstraintValidatorTestCase
             'Tags' => ['<evil-html><script>alert(\'Anyone reading this is stupid.\');</script></evil-html>', false],
             'Query Strings' => ['?exposeData=true&evilParameters[]=shutdown&evilParameters%5B%5D=encoded-shutdown', false],
             'SQL Queries' => ['DELETE FROM users;', false],
+            'Example' => ['{{7*7}}\nevil.com', false],
         ];
     }
 }
