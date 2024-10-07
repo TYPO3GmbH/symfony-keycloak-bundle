@@ -14,6 +14,9 @@ use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use T3G\Bundle\Keycloak\DependencyInjection\T3GKeycloakExtension;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class T3GKeycloakBundle extends Bundle
 {
     /**
