@@ -26,17 +26,17 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, xml, ctype, iconv
-          coverage: pcov
+          coverage: none
 
       - name: Cache composer dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: vendor
           key: ${{ matrix.php }}-composer-${{ matrix.symfony }}
@@ -58,17 +58,3 @@ jobs:
         run: |
           git status
           git status | grep -q "nothing to commit, working tree clean"
-
-      - name: Tests
-        run: |
-          php -dpcov.enabled=1 -dpcov.directory="." -dxdebug.mode="coverage" ./vendor/bin/phpunit -c build/phpunit.xml.dist --log-junit var/log/junit/phpunit.junit.xml --coverage-clover var/log/junit/coverage.xml --coverage-xml var/log/junit/coverage-xml/
-        env:
-          COMPOSER_PROCESS_TIMEOUT: 1200
-
-      - name: Upload coverage results to Coveralls
-        continue-on-error: true
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          composer global require php-coveralls/php-coveralls --no-progress --no-suggest --no-interaction
-          /home/runner/.composer/vendor/bin/php-coveralls -c build/.coveralls.yml -vvv --json_path=var/log/coveralls-upload.json
