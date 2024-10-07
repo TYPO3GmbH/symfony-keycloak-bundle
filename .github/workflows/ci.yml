@@ -54,6 +54,9 @@ jobs:
       - name: CGL
         run: composer t3g:cgl
 
+      - name: Tests
+        run: composer t3g:test:php
+
       - name: Git Status
         run: |
           git status
