@@ -12,6 +12,9 @@ namespace T3G\Bundle\Keycloak\Security;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class KeyCloakUser implements UserInterface
 {
     private string $identifier;

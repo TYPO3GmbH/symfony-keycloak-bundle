@@ -13,6 +13,9 @@ namespace T3G\Bundle\Keycloak\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[\Attribute]
 class Name extends Constraint
 {
