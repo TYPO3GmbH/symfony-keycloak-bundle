@@ -1,0 +1,2 @@
+coverage_clover: var/log/junit/coverage.xml
+
