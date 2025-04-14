@@ -16,10 +16,12 @@ use T3G\Bundle\Keycloak\Service\RedirectService;
 class LoginController extends AbstractController
 {
     private RedirectService $redirectService;
+    private string $logoutRoute;
 
-    public function __construct(RedirectService $redirectService)
+    public function __construct(RedirectService $redirectService, string $logoutRoute)
     {
         $this->redirectService = $redirectService;
+        $this->logoutRoute = $logoutRoute;
     }
 
     public function login(): RedirectResponse
@@ -39,6 +41,6 @@ class LoginController extends AbstractController
 
     public function oauthLogout(): RedirectResponse
     {
-        return $this->redirectService->generateLogoutRedirectResponse();
+        return $this->redirectService->generateLogoutRedirectResponse($this->logoutRoute);
     }
 }

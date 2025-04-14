@@ -23,13 +23,15 @@ class RedirectService
     public const DEFAULT_SCOPES = ['openid', 'profile', 'roles', 'email'];
     private ClientRegistry $clientRegistry;
     private RouterInterface $router;
+    private OpenIdService $openIdService;
     private string $clientId;
 
-    public function __construct(ClientRegistry $clientRegistry, RouterInterface $router, string $clientId)
+    public function __construct(ClientRegistry $clientRegistry, RouterInterface $router, OpenIdService $openIdService, string $clientId)
     {
         $this->clientRegistry = $clientRegistry;
-        $this->router = $router;
         $this->clientId = $clientId;
+        $this->openIdService = $openIdService;
+        $this->router = $router;
     }
 
     /**
@@ -43,15 +45,15 @@ class RedirectService
         return $client->redirect($scopes);
     }
 
-    public function generateLogoutRedirectResponse(): RedirectResponse
+    public function generateLogoutRedirectResponse($logoutRoute): RedirectResponse
     {
-        $redirectAfterOAuthLogout = rtrim($this->router->generate('home', [], UrlGeneratorInterface::ABSOLUTE_URL), '/');
+        $redirectAfterOAuthLogout = rtrim($this->router->generate($logoutRoute, [], UrlGeneratorInterface::ABSOLUTE_URL), '/');
         /** @var Keycloak $provider */
         $provider = $this->clientRegistry->getClient('keycloak')->getOAuth2Provider();
+        $openIdConfiguration = $this->openIdService->getOpenIdConfiguration(sprintf('%s/realms/%s', $provider->authServerUrl, $provider->realm));
         $redirectTarget = sprintf(
-            '%s/realms/%s/protocol/openid-connect/logout?client_id=%s&post_logout_redirect_uri=%s',
-            $provider->authServerUrl,
-            $provider->realm,
+            '%s?client_id=%s&post_logout_redirect_uri=%s',
+            $openIdConfiguration['end_session_endpoint'],
             $this->clientId,
             urlencode($redirectAfterOAuthLogout)
         );

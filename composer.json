@@ -25,6 +25,7 @@
         "php-http/curl-client": "^2.1",
         "php-http/httplug-bundle": "^1.17",
         "stevenmaguire/oauth2-keycloak": "^5.1",
+        "symfony/cache": "^5.4 || ^6.4",
         "symfony/dependency-injection": "^5.4 || ^6.4",
         "symfony/framework-bundle": "^5.4 || ^6.4",
         "symfony/security-bundle": "^5.4 || ^6.4",
