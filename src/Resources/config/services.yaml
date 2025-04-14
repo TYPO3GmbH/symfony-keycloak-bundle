@@ -14,9 +14,14 @@ services:
 
   keycloak.typo3.com.login_controller:
     class: T3G\Bundle\Keycloak\Controller\LoginController
+    arguments:
+      $logoutRoute: '%t3g_keycloak.routes.logout_route%'
 
   keycloak.typo3.com.token_service:
     class: T3G\Bundle\Keycloak\Service\TokenService
+
+  T3G\Bundle\Keycloak\Service\OpenIdService:
+    class: T3G\Bundle\Keycloak\Service\OpenIdService
 
   T3G\Bundle\Keycloak\Service\RedirectService:
     class: T3G\Bundle\Keycloak\Service\RedirectService
