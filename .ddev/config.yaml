@@ -12,7 +12,6 @@ database:
     type: mariadb
     version: "10.3"
 omit_containers: [db]
-webimage_extra_packages: [php8.1-gmp, ssh]
 use_dns_when_possible: true
 composer_version: "2"
 web_environment: []
