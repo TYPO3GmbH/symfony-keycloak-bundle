@@ -51,7 +51,7 @@ class Configuration implements ConfigurationInterface
                             ->defaultValue('home')
                         ->end()
                         ->scalarNode('logout_route')
-                            ->defaultValue('logout')
+                            ->defaultValue('_logout_main')
                         ->end()
                 ->end()
             ->end()

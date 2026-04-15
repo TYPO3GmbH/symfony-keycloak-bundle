@@ -14,8 +14,6 @@ use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Routing\RouterInterface;
 use T3G\Bundle\Keycloak\Security\KeyCloakAuthenticator;
@@ -62,12 +60,8 @@ class RequestSubscriber implements EventSubscriberInterface
                 }
 
                 if ('invalid_grant' === $body['error']) {
-                    // User had a keycloak session, but refreshing the access token failed. Enforce logout.
-                    $response = new RedirectResponse(
-                        $this->router->generate('logout'),
-                        Response::HTTP_TEMPORARY_REDIRECT
-                    );
-                    $event->setResponse($response);
+                    // User had a keycloak session, but refreshing the access token failed. Enforce logout in Symfony.
+                    $session->invalidate();
                     return;
                 }
 

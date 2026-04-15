@@ -100,5 +100,5 @@ t3g_keycloak:
         # redirect_route passed to keycloak
         authentication: t3g_keycloak_oauthCallback
         # route of the Symfony logout handling
-        logout_route: logout
+        logout_route: _logout_main
 ```
