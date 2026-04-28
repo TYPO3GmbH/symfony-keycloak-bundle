@@ -16,7 +16,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-json": "*",
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "nyholm/psr7": "^1.2",
