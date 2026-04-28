@@ -24,10 +24,10 @@ return function (RoutingConfigurator $routes): void {
     $routes->add('t3g_keycloak_login', '/login')
         ->controller('keycloak.typo3.com.login_controller::login')
     ;
-    $routes->add('t3g_keycloak_oauthCallback', '/oauth/callback}')
+    $routes->add('t3g_keycloak_oauthCallback', '/oauth/callback')
         ->controller('keycloak.typo3.com.login_controller::oauthCallback')
     ;
-    $routes->add('t3g_keycloak_logout', '/oauth/logout}')
+    $routes->add('t3g_keycloak_logout', '/oauth/logout')
         ->controller('keycloak.typo3.com.login_controller::oauthLogout')
     ;
 };
