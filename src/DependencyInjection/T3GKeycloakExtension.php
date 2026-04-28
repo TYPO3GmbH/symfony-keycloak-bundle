@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\DependencyInjection;
 
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -88,8 +89,9 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
                         ]
                     ],
                     'classes' => [
-                        'message_factory' => 'Nyholm\Psr7\Factory\Psr17Factory',
-                        'stream_factory' => 'Nyholm\Psr7\Factory\Psr17Factory',
+                        'psr17_request_factory' => Psr17Factory::class,
+                        'psr17_server_request_factory' => Psr17Factory::class,
+                        'psr17_stream_factory' => Psr17Factory::class,
                     ]
                 ]
             );
