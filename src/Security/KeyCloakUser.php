@@ -57,6 +57,7 @@ class KeyCloakUser implements UserInterface
         return $this->getUserIdentifier();
     }
 
+    #[\Deprecated]
     public function eraseCredentials(): void
     {
         // Do nothing.
