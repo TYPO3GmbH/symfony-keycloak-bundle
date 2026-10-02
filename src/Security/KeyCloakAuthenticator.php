@@ -108,7 +108,7 @@ class KeyCloakAuthenticator extends OAuth2Authenticator implements Authenticatio
      * Called when authentication is needed, but it's not sent.
      * This redirects to the 'login'.
      */
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return $this->redirectService->generateLoginRedirectResponse();
     }
