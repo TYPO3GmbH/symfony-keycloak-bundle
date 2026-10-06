@@ -38,5 +38,9 @@ services:
       $routeAuthentication: '%t3g_keycloak.routes.authentication%'
       $routeSuccess: '%t3g_keycloak.routes.success%'
 
+  T3G\Bundle\Keycloak\Service\AccessTokenRefresher:
+    class: T3G\Bundle\Keycloak\Service\AccessTokenRefresher
+    public: true
+
   T3G\Bundle\Keycloak\EventSubscriber\RequestSubscriber:
     tags: [ kernel.event_subscriber ]
