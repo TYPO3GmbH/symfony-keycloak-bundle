@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace T3G\Bundle\Keycloak\DependencyInjection;
 
-use Nyholm\Psr7\Factory\Psr17Factory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -56,43 +55,6 @@ class T3GKeycloakExtension extends Extension implements PrependExtensionInterfac
                             'redirect_route' => '%t3g_keycloak.routes.authentication%',
                         ],
                     ],
-                ]
-            );
-        }
-
-        if ($container->hasExtension('httplug')) {
-            $container->prependExtensionConfig(
-                'httplug',
-                [
-                    'plugins' => [
-                        'cache' => [
-                            'cache_pool' => 'cache.app',
-                            'config' => [
-                                'default_ttl' => 1800
-                            ]
-                        ],
-                        'retry' => [
-                            'retry' => 1
-                        ]
-                    ],
-                    'discovery' => [
-                        'client' => 'auto'
-                    ],
-                    'clients' => [
-                        'app' => [
-                            'http_methods_client' => true,
-                            'plugins' => ['httplug.plugin.content_length', 'httplug.plugin.redirect']
-                        ],
-                        'login_typo3_com' => [
-                            'factory' => 'httplug.factory.curl',
-                            'plugins' => ['httplug.plugin.cache']
-                        ]
-                    ],
-                    'classes' => [
-                        'psr17_request_factory' => Psr17Factory::class,
-                        'psr17_server_request_factory' => Psr17Factory::class,
-                        'psr17_stream_factory' => Psr17Factory::class,
-                    ]
                 ]
             );
         }
